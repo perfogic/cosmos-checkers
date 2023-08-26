@@ -1,0 +1,13 @@
+- name: deft
+  type: local
+  address: cosmos1k56kddph5f65v7ypuv5spdxjszz2f76hqyvmc8
+  pubkey: '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"A24TRpBSsoFY7/snF+jicWJYpvYVEPUf2kL+SxmLB9oL"}'
+  mnemonic: ""
+
+
+**Important** write this mnemonic phrase in a safe place.
+It is the only way to recover your account if you ever forget your password.
+
+noodle memory maple desk lens wheel staff expire brand illness clutch gravity interest gather social voyage project heavy hurdle tortoise silk amazing defy robot
+
+satoshi trend result field parrot celery square sorry timber buffalo sting calm
