@@ -1,0 +1,9 @@
+syntax = "proto3";
+package perfogic.cosmoscheckers.cosmoscheckers;
+
+option go_package = "github.com/perfogic/cosmos-checkers/x/cosmoscheckers/types";
+
+message SystemInfo {
+  uint64 nextId = 1; 
+  
+}

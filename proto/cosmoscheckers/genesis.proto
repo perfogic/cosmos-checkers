@@ -3,6 +3,8 @@ package perfogic.cosmoscheckers.cosmoscheckers;
 
 import "gogoproto/gogo.proto";
 import "cosmoscheckers/params.proto";
+import "cosmoscheckers/system_info.proto";
+import "cosmoscheckers/stored_game.proto";
 // this line is used by starport scaffolding # genesis/proto/import
 
 option go_package = "github.com/perfogic/cosmos-checkers/x/cosmoscheckers/types";
@@ -10,5 +12,7 @@ option go_package = "github.com/perfogic/cosmos-checkers/x/cosmoscheckers/types"
 // GenesisState defines the cosmoscheckers module's genesis state.
 message GenesisState {
   Params params = 1 [(gogoproto.nullable) = false];
+  SystemInfo systemInfo = 2 [(gogoproto.nullable) = false];
+  repeated StoredGame storedGameList = 3 [(gogoproto.nullable) = false];
   // this line is used by starport scaffolding # genesis/proto/state
 }
