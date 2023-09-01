@@ -1,0 +1,11 @@
+cosmos-checkersd keys add perfogic --keyring-backend test
+cosmos-checkersd keys add bob --keyring-backend test
+
+
+export alice=$(cosmos-checkersd keys show alice -a)
+export bob=$(cosmos-checkersd keys show bob -a)
+
+
+cosmos-checkersd tx cosmoscheckers create-game $alice $bob --from $alice --dry-run
+
+cosmos-checkersd  query cosmoscheckers show-system-info

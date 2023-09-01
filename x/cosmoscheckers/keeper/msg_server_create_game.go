@@ -13,5 +13,5 @@ func (k msgServer) CreateGame(goCtx context.Context, msg *types.MsgCreateGame) (
 	// TODO: Handling the message
 	_ = ctx
 
-	return &types.MsgCreateGameResponse{}, nil
+	return &types.MsgCreateGameResponse{GameIndex: "First Test It"}, nil
 }
