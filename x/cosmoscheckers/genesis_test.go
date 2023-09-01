@@ -32,6 +32,9 @@ func TestGenesis(t *testing.T) {
 	cosmoscheckers.InitGenesis(ctx, *k, genesisState)
 	got := cosmoscheckers.ExportGenesis(ctx, *k)
 	require.NotNil(t, got)
+	require.Equal(t, got.SystemInfo.NextId, uint64(36))
+	require.Equal(t, got.StoredGameList[0].Index, "0")
+	require.Equal(t, got.StoredGameList[1].Index, "1")
 
 	nullify.Fill(&genesisState)
 	nullify.Fill(got)
