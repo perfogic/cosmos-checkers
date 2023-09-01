@@ -9,6 +9,10 @@
  * ---------------------------------------------------------------
  */
 
+export interface CosmoscheckersMsgCreateGameResponse {
+  gameIndex?: string;
+}
+
 /**
  * Params defines the parameters for the module.
  */
