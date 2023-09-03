@@ -64,6 +64,7 @@ export interface CosmoscheckersStoredGame {
   turn?: string;
   black?: string;
   red?: string;
+  winner?: string;
 }
 
 export interface CosmoscheckersSystemInfo {
