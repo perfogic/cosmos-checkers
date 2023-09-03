@@ -9,3 +9,7 @@ export bob=$(cosmos-checkersd keys show bob -a)
 cosmos-checkersd tx cosmoscheckers create-game $alice $bob --from $alice --dry-run
 
 cosmos-checkersd  query cosmoscheckers show-system-info
+
+cosmos-checkersd query tx 2912FC0E43E90E85615F1898E425EDA541E206459648839F1E4E965FA32E9F76  --output json | jq ".raw_log | fromjson"
+
+cosmos-checkersd query cosmoscheckers show-stored-game 1 --output json | jq ".storedGame.board" | sed 's/"//g' | sed 's/|/\n/g'
