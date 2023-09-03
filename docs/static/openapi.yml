@@ -49322,6 +49322,17 @@ definitions:
     properties:
       gameIndex:
         type: string
+  perfogic.cosmoscheckers.cosmoscheckers.MsgPlayMoveResponse:
+    type: object
+    properties:
+      capturedX:
+        type: integer
+        format: int32
+      capturedY:
+        type: integer
+        format: int32
+      winner:
+        type: string
   perfogic.cosmoscheckers.cosmoscheckers.Params:
     type: object
     description: Params defines the parameters for the module.

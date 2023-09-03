@@ -4,10 +4,12 @@ import { StdFee } from "@cosmjs/launchpad";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { Registry, OfflineSigner, EncodeObject, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { Api } from "./rest";
+import { MsgPlayMove } from "./types/cosmoscheckers/tx";
 import { MsgCreateGame } from "./types/cosmoscheckers/tx";
 
 
 const types = [
+  ["/perfogic.cosmoscheckers.cosmoscheckers.MsgPlayMove", MsgPlayMove],
   ["/perfogic.cosmoscheckers.cosmoscheckers.MsgCreateGame", MsgCreateGame],
   
 ];
@@ -41,6 +43,7 @@ const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions =
 
   return {
     signAndBroadcast: (msgs: EncodeObject[], { fee, memo }: SignAndBroadcastOptions = {fee: defaultFee, memo: ""}) => client.signAndBroadcast(address, msgs, fee,memo),
+    msgPlayMove: (data: MsgPlayMove): EncodeObject => ({ typeUrl: "/perfogic.cosmoscheckers.cosmoscheckers.MsgPlayMove", value: MsgPlayMove.fromPartial( data ) }),
     msgCreateGame: (data: MsgCreateGame): EncodeObject => ({ typeUrl: "/perfogic.cosmoscheckers.cosmoscheckers.MsgCreateGame", value: MsgCreateGame.fromPartial( data ) }),
     
   };
