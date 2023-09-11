@@ -65,6 +65,7 @@ export interface CosmoscheckersStoredGame {
   black?: string;
   red?: string;
   winner?: string;
+  deadline?: string;
 }
 
 export interface CosmoscheckersSystemInfo {

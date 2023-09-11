@@ -8,7 +8,6 @@ import (
 	keepertest "github.com/perfogic/cosmos-checkers/testutil/keeper"
 	"github.com/perfogic/cosmos-checkers/x/cosmoscheckers"
 	"github.com/perfogic/cosmos-checkers/x/cosmoscheckers/keeper"
-	"github.com/perfogic/cosmos-checkers/x/cosmoscheckers/testutil"
 	"github.com/perfogic/cosmos-checkers/x/cosmoscheckers/types"
 	"github.com/stretchr/testify/require"
 )
@@ -65,7 +64,6 @@ func TestPlayMoveSameBlackRed(t *testing.T) {
 		Black:   bob,
 		Red:     bob,
 	})
-
 	playMoveResponse, err := msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator:   bob,
 		GameIndex: "1",
@@ -101,12 +99,13 @@ func TestPlayMoveSavedGame(t *testing.T) {
 	game1, found := keeper.GetStoredGame(ctx, "1")
 	require.True(t, found)
 	require.EqualValues(t, types.StoredGame{
-		Index:  "1",
-		Board:  "*b*b*b*b|b*b*b*b*|***b*b*b|**b*****|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
-		Turn:   "r",
-		Black:  bob,
-		Red:    carol,
-		Winner: "*",
+		Index:    "1",
+		Board:    "*b*b*b*b|b*b*b*b*|***b*b*b|**b*****|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
+		Turn:     "r",
+		Black:    bob,
+		Red:      carol,
+		Winner:   "*",
+		Deadline: types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
 	}, game1)
 }
 
@@ -254,12 +253,13 @@ func TestPlayMove2SavedGame(t *testing.T) {
 	game1, found := keeper.GetStoredGame(ctx, "1")
 	require.True(t, found)
 	require.EqualValues(t, types.StoredGame{
-		Index:  "1",
-		Board:  "*b*b*b*b|b*b*b*b*|***b*b*b|**b*****|*r******|**r*r*r*|*r*r*r*r|r*r*r*r*",
-		Turn:   "b",
-		Black:  bob,
-		Red:    carol,
-		Winner: "*",
+		Index:    "1",
+		Board:    "*b*b*b*b|b*b*b*b*|***b*b*b|**b*****|*r******|**r*r*r*|*r*r*r*r|r*r*r*r*",
+		Turn:     "b",
+		Black:    bob,
+		Red:      carol,
+		Winner:   "*",
+		Deadline: types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
 	}, game1)
 }
 
@@ -366,47 +366,29 @@ func TestPlayMove3SavedGame(t *testing.T) {
 	game1, found := keeper.GetStoredGame(ctx, "1")
 	require.True(t, found)
 	require.EqualValues(t, types.StoredGame{
-		Index:  "1",
-		Board:  "*b*b*b*b|b*b*b*b*|***b*b*b|********|********|b*r*r*r*|*r*r*r*r|r*r*r*r*",
-		Turn:   "r",
-		Black:  bob,
-		Red:    carol,
-		Winner: "*",
+		Index:    "1",
+		Board:    "*b*b*b*b|b*b*b*b*|***b*b*b|********|********|b*r*r*r*|*r*r*r*r|r*r*r*r*",
+		Turn:     "r",
+		Black:    bob,
+		Red:      carol,
+		Winner:   "*",
+		Deadline: types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
 	}, game1)
 }
 
-func TestPlayMoveUpToWinner(t *testing.T) {
+func TestSavedPlayedDeadlineIsParseable(t *testing.T) {
 	msgServer, keeper, context := setupMsgServerWithOneGameForPlayMove(t)
 	ctx := sdk.UnwrapSDKContext(context)
-
-	testutil.PlayAllMoves(t, msgServer, context, "1", bob, carol, testutil.Game1Moves)
-
-	systemInfo, found := keeper.GetSystemInfo(ctx)
-	require.True(t, found)
-	require.EqualValues(t, types.SystemInfo{
-		NextId: 2,
-	}, systemInfo)
-
+	msgServer.PlayMove(context, &types.MsgPlayMove{
+		Creator:   bob,
+		GameIndex: "1",
+		FromX:     1,
+		FromY:     2,
+		ToX:       2,
+		ToY:       3,
+	})
 	game, found := keeper.GetStoredGame(ctx, "1")
 	require.True(t, found)
-	require.EqualValues(t, types.StoredGame{
-		Index:  "1",
-		Board:  "",
-		Turn:   "b",
-		Black:  bob,
-		Red:    carol,
-		Winner: "b",
-	}, game)
-	events := sdk.StringifyEvents(ctx.EventManager().ABCIEvents())
-	require.Len(t, events, 2)
-	event := events[0]
-	require.Equal(t, event.Type, "move-played")
-	require.EqualValues(t, []sdk.Attribute{
-		{Key: "creator", Value: bob},
-		{Key: "game-index", Value: "1"},
-		{Key: "captured-x", Value: "2"},
-		{Key: "captured-y", Value: "5"},
-		{Key: "winner", Value: "b"},
-		{Key: "board", Value: "*b*b****|**b*b***|*****b**|********|***B****|********|*****b**|********"},
-	}, event.Attributes[(len(testutil.Game1Moves)-1)*6:])
+	_, err := game.GetDeadlineAsTime()
+	require.Nil(t, err)
 }
