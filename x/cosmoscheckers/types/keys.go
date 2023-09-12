@@ -49,3 +49,7 @@ const (
 	MovePlayedEventWinner    = "winner"
 	MovePlayedEventBoard     = "board"
 )
+
+const (
+	NoFifoIndex = "-1"
+)
