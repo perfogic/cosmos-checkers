@@ -25,6 +25,7 @@ func (k msgServer) CreateGame(goCtx context.Context, msg *types.MsgCreateGame) (
 		Turn:        rules.PieceStrings[newGame.Turn],
 		Black:       msg.Black,
 		Red:         msg.Red,
+		Wager:       msg.Wager,
 		Winner:      rules.PieceStrings[rules.NO_PLAYER],
 		Deadline:    types.FormatDeadline(types.GetNextDeadline(ctx)),
 		MoveCount:   0,
@@ -48,6 +49,7 @@ func (k msgServer) CreateGame(goCtx context.Context, msg *types.MsgCreateGame) (
 			sdk.NewAttribute(types.GameCreatedEventGameIndex, newIndex),
 			sdk.NewAttribute(types.GameCreatedEventBlack, msg.Black),
 			sdk.NewAttribute(types.GameCreatedEventRed, msg.Red),
+			sdk.NewAttribute(types.GameCreatedEventWager, strconv.FormatUint(msg.Wager, 10)),
 		),
 	)
 
