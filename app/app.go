@@ -171,6 +171,7 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
+		cosmoscheckersmoduletypes.ModuleName: nil,
 	}
 )
 
@@ -390,6 +391,7 @@ func New(
 	monitoringModule := monitoringp.NewAppModule(appCodec, app.MonitoringKeeper)
 
 	app.CosmoscheckersKeeper = *cosmoscheckersmodulekeeper.NewKeeper(
+		app.BankKeeper,
 		appCodec,
 		keys[cosmoscheckersmoduletypes.StoreKey],
 		keys[cosmoscheckersmoduletypes.MemStoreKey],
