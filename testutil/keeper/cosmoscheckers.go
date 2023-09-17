@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	typesparams "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/perfogic/cosmos-checkers/x/cosmoscheckers/keeper"
+	"github.com/perfogic/cosmos-checkers/x/cosmoscheckers/testutil"
 	"github.com/perfogic/cosmos-checkers/x/cosmoscheckers/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
@@ -18,6 +19,10 @@ import (
 )
 
 func CosmoscheckersKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
+	return CosmoscheckersKeeperWithMocks(t, nil)
+}
+
+func CosmoscheckersKeeperWithMocks(t testing.TB, bank *testutil.MockBankEscrowKeeper) (*keeper.Keeper, sdk.Context) {
 	storeKey := sdk.NewKVStoreKey(types.StoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
@@ -34,9 +39,10 @@ func CosmoscheckersKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
 		types.Amino,
 		storeKey,
 		memStoreKey,
-		"CosmoscheckersParams",
+		"CheckersParams",
 	)
 	k := keeper.NewKeeper(
+		bank,
 		cdc,
 		storeKey,
 		memStoreKey,

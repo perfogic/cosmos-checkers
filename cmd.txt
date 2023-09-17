@@ -13,3 +13,8 @@ cosmos-checkersd  query cosmoscheckers show-system-info
 cosmos-checkersd query tx 2912FC0E43E90E85615F1898E425EDA541E206459648839F1E4E965FA32E9F76  --output json | jq ".raw_log | fromjson"
 
 cosmos-checkersd query cosmoscheckers show-stored-game 1 --output json | jq ".storedGame.board" | sed 's/"//g' | sed 's/|/\n/g'
+
+
+cosmos-checkersd tx cosmoscheckers create-game $alice $bob 1000000 --from $alice
+cosmos-checkersd tx cosmoscheckers play-move 2 1 2 2 3 --from $alice
+cosmos-checkersd tx cosmoscheckers play-move 2 0 5 1 4 --from $bob

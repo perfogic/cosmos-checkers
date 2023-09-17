@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/perfogic/cosmos-checkers/x/cosmoscheckers/rules"
@@ -64,8 +65,9 @@ func GetNextDeadline(ctx sdk.Context) time.Time {
 	return ctx.BlockTime().Add(MaxTurnDuration)
 }
 
+// An improvement can be made here is do not static types.DefaultBondDenom, instead allow to choose different coin
 func (storedGame *StoredGame) GetWagerCoin() (wager sdk.Coin) {
-	return sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(int64(storedGame.Wager)))
+	return sdk.NewCoin(types.DefaultBondDenom, sdk.NewInt(int64(storedGame.Wager)))
 }
 
 func (storedGame StoredGame) Validate() (err error) {

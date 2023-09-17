@@ -19,6 +19,7 @@ func (k Keeper) ForfeitExpiredGames(goCtx context.Context) {
 
 	// Get FIFO information
 	systemInfo, found := k.GetSystemInfo(ctx)
+
 	if !found {
 		panic("SystemInfo not found")
 	}
