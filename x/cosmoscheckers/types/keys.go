@@ -24,6 +24,11 @@ const (
 	DeadlineLayout  = "2006-01-02 15:04:05.999999999 +0000 UTC"
 )
 
+const (
+	CreateGameGas = 15000
+	PlayMoveGas   = 1000
+)
+
 func KeyPrefix(p string) []byte {
 	return []byte(p)
 }
