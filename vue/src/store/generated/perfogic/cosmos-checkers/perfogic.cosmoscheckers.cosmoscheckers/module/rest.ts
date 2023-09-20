@@ -42,6 +42,11 @@ export interface CosmoscheckersQueryAllStoredGameResponse {
   pagination?: V1Beta1PageResponse;
 }
 
+export interface CosmoscheckersQueryCanPlayMoveResponse {
+  possible?: boolean;
+  reason?: string;
+}
+
 export interface CosmoscheckersQueryGetStoredGameResponse {
   storedGame?: CosmoscheckersStoredGame;
 }
@@ -353,6 +358,30 @@ export class HttpClient<SecurityDataType = unknown> {
  * @version version not set
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
+  /**
+   * No description
+   *
+   * @tags Query
+   * @name QueryCanPlayMove
+   * @summary Queries a list of CanPlayMove items.
+   * @request GET:/perfogic/cosmos-checkers/cosmoscheckers/can_play_move/{gameIndex}/{player}/{fromX}/{fromY}/{toX}/{toY}
+   */
+  queryCanPlayMove = (
+    gameIndex: string,
+    player: string,
+    fromX: string,
+    fromY: string,
+    toX: string,
+    toY: string,
+    params: RequestParams = {},
+  ) =>
+    this.request<CosmoscheckersQueryCanPlayMoveResponse, RpcStatus>({
+      path: `/perfogic/cosmos-checkers/cosmoscheckers/can_play_move/${gameIndex}/${player}/${fromX}/${fromY}/${toX}/${toY}`,
+      method: "GET",
+      format: "json",
+      ...params,
+    });
+
   /**
    * No description
    *
