@@ -27,9 +27,11 @@ func setupMsgServerWithOneGameForPlayMove(t testing.TB) (types.MsgServer, keeper
 		Black:   bob,
 		Red:     carol,
 		Wager:   45,
+		Denom:   "stake",
 	})
 	return server, *k, context, ctrl, bankMock
 }
+
 func TestPlayMove(t *testing.T) {
 	msgServer, _, context, ctrl, escrow := setupMsgServerWithOneGameForPlayMove(t)
 	defer ctrl.Finish()
@@ -48,24 +50,6 @@ func TestPlayMove(t *testing.T) {
 		CapturedY: -1,
 		Winner:    "*",
 	}, *playMoveResponse)
-}
-
-func TestPlayMoveConsumedGas(t *testing.T) {
-	msgServer, _, context, ctrl, escrow := setupMsgServerWithOneGameForPlayMove(t)
-	ctx := sdk.UnwrapSDKContext(context)
-	defer ctrl.Finish()
-	escrow.ExpectAny(context)
-	before := ctx.GasMeter().GasConsumed()
-	msgServer.PlayMove(context, &types.MsgPlayMove{
-		Creator:   bob,
-		GameIndex: "1",
-		FromX:     1,
-		FromY:     2,
-		ToX:       2,
-		ToY:       3,
-	})
-	after := ctx.GasMeter().GasConsumed()
-	require.GreaterOrEqual(t, after, before+5_000)
 }
 
 func TestPlayMoveGameNotFound(t *testing.T) {
@@ -92,6 +76,7 @@ func TestPlayMoveSameBlackRed(t *testing.T) {
 		Black:   bob,
 		Red:     bob,
 		Wager:   46,
+		Denom:   "coin",
 	})
 	playMoveResponse, err := msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator:   bob,
@@ -143,6 +128,7 @@ func TestPlayMoveSavedGame(t *testing.T) {
 		BeforeIndex: "-1",
 		AfterIndex:  "-1",
 		Wager:       45,
+		Denom:       "stake",
 	}, game1)
 }
 
@@ -188,6 +174,24 @@ func TestPlayMoveCalledBank(t *testing.T) {
 		ToX:       2,
 		ToY:       3,
 	})
+}
+
+func TestPlayMoveConsumedGas(t *testing.T) {
+	msgServer, _, context, ctrl, escrow := setupMsgServerWithOneGameForPlayMove(t)
+	ctx := sdk.UnwrapSDKContext(context)
+	defer ctrl.Finish()
+	escrow.ExpectAny(context)
+	before := ctx.GasMeter().GasConsumed()
+	msgServer.PlayMove(context, &types.MsgPlayMove{
+		Creator:   bob,
+		GameIndex: "1",
+		FromX:     1,
+		FromY:     2,
+		ToX:       2,
+		ToY:       3,
+	})
+	after := ctx.GasMeter().GasConsumed()
+	require.GreaterOrEqual(t, after, before+5_000)
 }
 
 func TestPlayMoveNotPlayer(t *testing.T) {
@@ -328,6 +332,7 @@ func TestPlayMove2SavedGame(t *testing.T) {
 		BeforeIndex: "-1",
 		AfterIndex:  "-1",
 		Wager:       45,
+		Denom:       "stake",
 	}, game1)
 }
 
@@ -476,6 +481,7 @@ func TestPlayMove3SavedGame(t *testing.T) {
 		BeforeIndex: "-1",
 		AfterIndex:  "-1",
 		Wager:       45,
+		Denom:       "stake",
 	}, game1)
 }
 
@@ -527,4 +533,136 @@ func TestSavedPlayedDeadlineIsParseable(t *testing.T) {
 	require.True(t, found)
 	_, err := game.GetDeadlineAsTime()
 	require.Nil(t, err)
+}
+
+func TestPlayMove2Games1MoveHasSavedFifo(t *testing.T) {
+	msgServer, keeper, context, ctrl, escrow := setupMsgServerWithOneGameForPlayMove(t)
+	ctx := sdk.UnwrapSDKContext(context)
+	defer ctrl.Finish()
+	escrow.ExpectAny(context)
+	msgServer.CreateGame(context, &types.MsgCreateGame{
+		Creator: bob,
+		Black:   carol,
+		Red:     alice,
+		Wager:   46,
+		Denom:   "coin",
+	})
+
+	msgServer.PlayMove(context, &types.MsgPlayMove{
+		Creator:   bob,
+		GameIndex: "1",
+		FromX:     1,
+		FromY:     2,
+		ToX:       2,
+		ToY:       3,
+	})
+	systemInfo1, found := keeper.GetSystemInfo(ctx)
+	require.True(t, found)
+	require.EqualValues(t, types.SystemInfo{
+		NextId:        3,
+		FifoHeadIndex: "2",
+		FifoTailIndex: "1",
+	}, systemInfo1)
+	game1, found := keeper.GetStoredGame(ctx, "1")
+	require.True(t, found)
+	require.EqualValues(t, types.StoredGame{
+		Index:       "1",
+		Board:       "*b*b*b*b|b*b*b*b*|***b*b*b|**b*****|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
+		Turn:        "r",
+		Black:       bob,
+		Red:         carol,
+		Winner:      "*",
+		Deadline:    types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
+		MoveCount:   uint64(1),
+		BeforeIndex: "2",
+		AfterIndex:  "-1",
+		Wager:       45,
+		Denom:       "stake",
+	}, game1)
+	game2, found := keeper.GetStoredGame(ctx, "2")
+	require.True(t, found)
+	require.EqualValues(t, types.StoredGame{
+		Index:       "2",
+		Board:       "*b*b*b*b|b*b*b*b*|*b*b*b*b|********|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
+		Turn:        "b",
+		Black:       carol,
+		Red:         alice,
+		Winner:      "*",
+		Deadline:    types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
+		MoveCount:   uint64(0),
+		BeforeIndex: "-1",
+		AfterIndex:  "1",
+		Wager:       46,
+		Denom:       "coin",
+	}, game2)
+}
+
+func TestPlayMove2Games2MovesHasSavedFifo(t *testing.T) {
+	msgServer, keeper, context, ctrl, escrow := setupMsgServerWithOneGameForPlayMove(t)
+	ctx := sdk.UnwrapSDKContext(context)
+	defer ctrl.Finish()
+	escrow.ExpectAny(context)
+	msgServer.CreateGame(context, &types.MsgCreateGame{
+		Creator: bob,
+		Black:   carol,
+		Red:     alice,
+		Wager:   46,
+		Denom:   "coin",
+	})
+	msgServer.PlayMove(context, &types.MsgPlayMove{
+		Creator:   bob,
+		GameIndex: "1",
+		FromX:     1,
+		FromY:     2,
+		ToX:       2,
+		ToY:       3,
+	})
+
+	msgServer.PlayMove(context, &types.MsgPlayMove{
+		Creator:   carol,
+		GameIndex: "2",
+		FromX:     1,
+		FromY:     2,
+		ToX:       2,
+		ToY:       3,
+	})
+	systemInfo1, found := keeper.GetSystemInfo(ctx)
+	require.True(t, found)
+	require.EqualValues(t, types.SystemInfo{
+		NextId:        3,
+		FifoHeadIndex: "1",
+		FifoTailIndex: "2",
+	}, systemInfo1)
+	game1, found := keeper.GetStoredGame(ctx, "1")
+	require.True(t, found)
+	require.EqualValues(t, types.StoredGame{
+		Index:       "1",
+		Board:       "*b*b*b*b|b*b*b*b*|***b*b*b|**b*****|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
+		Turn:        "r",
+		Black:       bob,
+		Red:         carol,
+		Winner:      "*",
+		Deadline:    types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
+		MoveCount:   uint64(1),
+		BeforeIndex: "-1",
+		AfterIndex:  "2",
+		Wager:       45,
+		Denom:       "stake",
+	}, game1)
+	game2, found := keeper.GetStoredGame(ctx, "2")
+	require.True(t, found)
+	require.EqualValues(t, types.StoredGame{
+		Index:       "2",
+		Board:       "*b*b*b*b|b*b*b*b*|***b*b*b|**b*****|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
+		Turn:        "r",
+		Black:       carol,
+		Red:         alice,
+		Winner:      "*",
+		Deadline:    types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
+		MoveCount:   uint64(1),
+		BeforeIndex: "1",
+		AfterIndex:  "-1",
+		Wager:       46,
+		Denom:       "coin",
+	}, game2)
 }
