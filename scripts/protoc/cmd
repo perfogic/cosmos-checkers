@@ -1,0 +1,16 @@
+$ cd scripts/protoc
+$ curl -L https://github.com/protocolbuffers/protobuf/releases/download/v21.5/protoc-21.5-linux-x86_64.zip -o protoc.zip
+$ unzip protoc.zip
+$ rm protoc.zip
+# If /usr/local/bin is in your $PATH
+$ ln -s $(pwd)/bin/protoc /usr/local/bin/protoc
+$ cd ../..
+
+
+$ mkdir -p proto/cosmos/base/query/v1beta1
+$ curl https://raw.githubusercontent.com/cosmos/cosmos-sdk/v0.45.4/proto/cosmos/base/query/v1beta1/pagination.proto -o proto/cosmos/base/query/v1beta1/pagination.proto
+$ mkdir -p proto/google/api
+$ curl https://raw.githubusercontent.com/cosmos/cosmos-sdk/v0.45.4/third_party/proto/google/api/annotations.proto -o proto/google/api/annotations.proto
+$ curl https://raw.githubusercontent.com/cosmos/cosmos-sdk/v0.45.4/third_party/proto/google/api/http.proto -o proto/google/api/http.proto
+$ mkdir -p proto/gogoproto
+$ curl https://raw.githubusercontent.com/cosmos/cosmos-sdk/v0.45.4/third_party/proto/gogoproto/gogo.proto -o proto/gogoproto/gogo.proto
