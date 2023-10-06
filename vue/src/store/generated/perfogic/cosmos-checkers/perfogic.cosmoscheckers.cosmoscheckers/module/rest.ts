@@ -79,6 +79,7 @@ export interface CosmoscheckersStoredGame {
 
   /** @format uint64 */
   wager?: string;
+  denom?: string;
 }
 
 export interface CosmoscheckersSystemInfo {
