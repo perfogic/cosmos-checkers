@@ -1,3 +1,5 @@
+home-directory=/home/hello/cosmos-checkers
+
 mock-expected-keepers:
 	mockgen -source=x/cosmoscheckers/types/expected_keepers.go \
 		-package testutil \
@@ -9,7 +11,7 @@ install-protoc-gen-ts:
 	curl -L https://github.com/protocolbuffers/protobuf/releases/download/v21.5/protoc-21.5-linux-x86_64.zip -o scripts/protoc/protoc.zip
 	cd scripts/protoc && unzip -o protoc.zip
 	rm scripts/protoc/protoc.zip
-	ln -s $(pwd)/scripts/protoc/bin/protoc /usr/local/bin/protoc
+	ln -s $(home-directory)/scripts/protoc/bin/protoc /usr/local/bin/protoc
 
 cosmos-version = v0.45.4
 
@@ -32,3 +34,52 @@ gen-protoc-ts:
 		cosmoscheckers/{}
 	
 install-and-gen-protoc-ts: download-cosmos-proto install-protoc-gen-ts gen-protoc-ts
+
+build-linux:
+	GOOS=linux GOARCH=amd64 go build -o ./build/cosmos-checkersd-linux-amd64 ./cmd/cosmos-checkersd/main.go
+	GOOS=linux GOARCH=arm64 go build -o ./build/cosmos-checkersd-linux-arm64 ./cmd/cosmos-checkersd/main.go
+
+do-checksum-linux:
+	cd build && sha256sum \
+		cosmos-checkersd-linux-amd64 cosmos-checkersd-linux-arm64 \
+		> cosmos-checkers-checksum-linux
+
+build-with-checksum: build-linux do-checksum-linux
+
+build-dockerfiles:
+	docker build -f prod-sim/Dockerfile-cosmos-checkersd-debian . -t cosmos-checkersd_i --no-cache
+	docker build -f prod-sim/Dockerfile-tmkms-debian . -t tmkms_i:v0.12.2 --no-cache
+
+clean-validators:
+	echo "You are removing all validators, but you must have to use sudo"
+
+	echo desk-alice'\n'desk-bob'\n'node-carol'\n'sentry-alice'\n'sentry-bob'\n'val-alice'\n'val-bob'\n'kms-alice \
+    | xargs -I {} \
+    sudo rm -rf $(home-directory)/prod-sim/{}
+
+create-validators:
+	mkdir -p prod-sim/kms-alice
+	mkdir -p prod-sim/node-carol
+	mkdir -p prod-sim/sentry-alice
+	mkdir -p prod-sim/sentry-bob
+	mkdir -p prod-sim/val-alice
+	mkdir -p prod-sim/val-bob
+	mkdir -p prod-sim/desk-alice
+	mkdir -p prod-sim/desk-bob
+
+	docker run --name cosmos-checkers-container cosmos-checkersd_i 
+
+	echo desk-alice'\n'desk-bob'\n'node-carol'\n'sentry-alice'\n'sentry-bob'\n'val-alice'\n'val-bob \
+    | xargs -I {} \
+    docker cp cosmos-checkers-container:/root/.cosmos-checkers/config \
+	$(home-directory)/prod-sim/{}
+
+	echo desk-alice'\n'desk-bob'\n'node-carol'\n'sentry-alice'\n'sentry-bob'\n'val-alice'\n'val-bob \
+    | xargs -I {} \
+    docker cp cosmos-checkers-container:/root/.cosmos-checkers/data \
+	$(home-directory)/prod-sim/{}
+
+	docker stop cosmos-checkers-container
+	docker remove cosmos-checkers-container
+
+build-all-steps-dockerfiles: build-dockerfiles create-validators
