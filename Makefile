@@ -47,15 +47,14 @@ do-checksum-linux:
 build-with-checksum: build-linux do-checksum-linux
 
 build-dockerfiles:
-	docker build -f prod-sim/Dockerfile-cosmos-checkersd-debian . -t cosmos-checkersd_i --no-cache
-	docker build -f prod-sim/Dockerfile-tmkms-debian . -t tmkms_i:v0.12.2 --no-cache
+	docker build -f prod-sim/Dockerfile-tmkms-debian . -t tmkms_i:v0.12.2
 
 clean-validators:
 	echo "You are removing all validators, but you must have to use sudo"
-
 	echo desk-alice'\n'desk-bob'\n'node-carol'\n'sentry-alice'\n'sentry-bob'\n'val-alice'\n'val-bob'\n'kms-alice \
     | xargs -I {} \
     sudo rm -rf $(home-directory)/prod-sim/{}
+
 
 create-validators:
 	mkdir -p prod-sim/kms-alice
@@ -67,19 +66,88 @@ create-validators:
 	mkdir -p prod-sim/desk-alice
 	mkdir -p prod-sim/desk-bob
 
-	docker run --name cosmos-checkers-container cosmos-checkersd_i 
+	echo desk-alice'\n'desk-bob'\n'node-carol'\n'sentry-alice'\n'sentry-bob'\n'val-alice'\n'val-bob \
+    | xargs -I {} \
+	cosmos-checkersd init cosmos-checkers --chain-id "cosmos-checkers-1"\
+		--home $(home-directory)/prod-sim/{} \
 
 	echo desk-alice'\n'desk-bob'\n'node-carol'\n'sentry-alice'\n'sentry-bob'\n'val-alice'\n'val-bob \
     | xargs -I {} \
-    docker cp cosmos-checkers-container:/root/.cosmos-checkers/config \
-	$(home-directory)/prod-sim/{}
+	sed -i 's/"stake"/"upawn"/g' $(home-directory)/prod-sim/{}/config/genesis.json\
 
 	echo desk-alice'\n'desk-bob'\n'node-carol'\n'sentry-alice'\n'sentry-bob'\n'val-alice'\n'val-bob \
     | xargs -I {} \
-    docker cp cosmos-checkers-container:/root/.cosmos-checkers/data \
-	$(home-directory)/prod-sim/{}
+	sed -Ei 's/([0-9]+)stake/\1upawn/g' $(home-directory)/prod-sim/{}/config/app.toml\
 
-	docker stop cosmos-checkers-container
-	docker remove cosmos-checkers-container
+	echo desk-alice'\n'desk-bob'\n'node-carol'\n'sentry-alice'\n'sentry-bob'\n'val-alice'\n'val-bob \
+    | xargs -I {} \
+	sed -Ei 's/^chain-id = .*/chain-id = "cosmos-checkers-1"/g' $(home-directory)/prod-sim/{}/config/client.toml
 
-build-all-steps-dockerfiles: build-dockerfiles create-validators
+add-keys-alice:
+	cosmos-checkersd keys add alice --keyring-backend test --keyring-dir $(home-directory)/prod-sim/desk-alice/keys
+add-keys-bob:
+	cosmos-checkersd keys add bob --keyring-backend test --keyring-dir $(home-directory)/prod-sim/desk-bob/keys
+
+prepare-tmkms:
+	docker run --name tmkms-instance tmkms_i:v0.12.2
+	docker cp tmkms-instance:/root/tmkms $(home-directory)/prod-sim/kms-alice
+	docker remove tmkms-instance
+
+import-concensus-key:
+	cosmos-checkersd tendermint show-validator --home $(home-directory)/prod-sim/val-alice/ | tr -d '\n' | tr -d '\r' > $(home-directory)/prod-sim/desk-alice/config/pub_validator_key-val-alice.json
+
+	cp $(home-directory)/prod-sim/val-alice/config/priv_validator_key.json $(home-directory)/prod-sim/desk-alice/config/priv_validator_key-val-alice.json 
+	mv $(home-directory)/prod-sim/val-alice/config/priv_validator_key.json $(home-directory)/prod-sim/kms-alice/secrets/priv_validator_key-val-alice.json
+
+	echo "===============================================================\n===============================================================\nType: tmkms softsign import secrets/priv_validator_key-val-alice.json secrets/val-alice-consensus.key, then chmod it\n"
+
+	docker run --rm -it \
+    -v $(home-directory)/prod-sim/kms-alice:/root/tmkms \
+    -w /root/tmkms \
+    tmkms_i:v0.12.2
+
+	cp prod-sim/sentry-alice/config/priv_validator_key.json \
+    prod-sim/val-alice/config/
+
+init-balances:
+	# address of alice from desk-alice
+	cosmos-checkersd add-genesis-account cosmos1qkemfq9evv9ds6azcmlls89uf5qupchd3hq7sk 1000000000upawn --home=$(home-directory)/prod-sim/desk-alice
+
+	# address of bob from desk-bob
+	cosmos-checkersd add-genesis-account cosmos1d0z95l6p9u5eqkesg62nxfztqja9pnkxy8eg20 500000000upawn --home=$(home-directory)/prod-sim/desk-bob
+
+init-stakes:
+	cp prod-sim/val-bob/config/priv_validator_key.json \
+    prod-sim/desk-bob/config/priv_validator_key.json
+
+	cosmos-checkersd gentx bob 40000000upawn \
+    --keyring-backend test --keyring-dir $(home-directory)/prod-sim/desk-bob/keys \
+    --account-number 0 --sequence 0 \
+    --chain-id cosmos-checkers-1 \
+    --gas 1000000 \
+	--home $(home-directory)/prod-sim/desk-bob \
+    --gas-prices 0.1upawn
+
+	mv prod-sim/desk-bob/config/genesis.json \
+    prod-sim/desk-alice/config/
+
+	cosmos-checkersd gentx alice 60000000upawn \
+    --keyring-backend test --keyring-dir $(home-directory)/prod-sim/desk-alice/keys \
+    --account-number 0 --sequence 0 \
+    --pubkey $(cat $(home-directory)/prod-sim/desk-alice/config/pub_validator_key-val-alice.json) \
+    --chain-id checkers-1 \
+	--home $(home-directory)/prod-sim/desk-alice \
+    --gas 1000000 \
+    --gas-prices 0.1upawn
+
+	cp prod-sim/desk-bob/config/gentx/gentx-* \
+    prod-sim/desk-alice/config/gentx
+
+	cosmos-checkersd collect-gentxs --home $(home-directory)/prod-sim/desk-alice
+
+genesis-distribution:
+	echo desk-bob'\n'node-carol'\n'sentry-alice'\n'sentry-bob'\n'val-alice'\n'val-bob \
+		| xargs -I {} \
+		cp prod-sim/desk-alice/config/genesis.json prod-sim/{}/config
+
+simulate-validators-with-docker: build-dockerfiles create-validators add-keys-alice add-keys-bob

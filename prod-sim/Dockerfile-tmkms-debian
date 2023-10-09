@@ -17,4 +17,9 @@ FROM --platform=linux debian:latest
 
 COPY --from=builder /root/tmkms/target/release/tmkms ${LOCAL}/bin
 
-ENTRYPOINT [ "tmkms" ]
+RUN tmkms init /root/tmkms 
+RUN sed -Ei 's/^protocol_version = .*$/protocol_version = "v0.34"/g' \
+    /root/tmkms/tmkms.toml
+RUN sed -Ei 's/path = "\/root\/tmkms\/secrets\/cosmoshub-3-consensus.key"/path = "\/root\/tmkms\/secrets\/val-alice-consensus.key"/g' \
+    /root/tmkms/tmkms.toml
+RUN sed -Ei 's/cosmoshub-3/cosmos-checkers-1/g' /root/tmkms/tmkms.toml
