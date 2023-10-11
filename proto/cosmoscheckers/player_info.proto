@@ -1,0 +1,13 @@
+syntax = "proto3";
+package perfogic.cosmoscheckers.cosmoscheckers;
+
+option go_package = "github.com/perfogic/cosmos-checkers/x/cosmoscheckers/types";
+
+message PlayerInfo {
+  string index = 1; 
+  uint64 wonCount = 2; 
+  uint64 lostCount = 3; 
+  uint64 forfeitedCount = 4; 
+  
+}
+

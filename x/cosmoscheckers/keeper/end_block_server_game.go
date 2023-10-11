@@ -57,6 +57,7 @@ func (k Keeper) ForfeitExpiredGames(goCtx context.Context) {
 				k.MustPayWinnings(ctx, &storedGame)
 				storedGame.Board = ""
 				k.SetStoredGame(ctx, storedGame)
+				k.MustRegisterPlayerForfeit(ctx, &storedGame)
 			}
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(types.GameForfeitedEventType,

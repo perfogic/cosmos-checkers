@@ -18,6 +18,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/perfogic/cosmos-checkers/x/cosmoscheckers/client/cli"
 	"github.com/perfogic/cosmos-checkers/x/cosmoscheckers/keeper"
+	cv2types "github.com/perfogic/cosmos-checkers/x/cosmoscheckers/migrations/cv2/types"
+	"github.com/perfogic/cosmos-checkers/x/cosmoscheckers/migrations/cv3"
+	cv3types "github.com/perfogic/cosmos-checkers/x/cosmoscheckers/migrations/cv3/types"
 	"github.com/perfogic/cosmos-checkers/x/cosmoscheckers/types"
 )
 
@@ -139,6 +142,12 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 // module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
+
+	if err := cfg.RegisterMigration(types.ModuleName, cv2types.ConsensusVersion, func(ctx sdk.Context) error {
+		return cv3.PerformMigration(ctx, am.keeper, cv3types.StoredGameChunkSize)
+	}); err != nil {
+		panic(fmt.Errorf("failed to register cv2 player info migration of %s: %w", types.ModuleName, err))
+	}
 }
 
 // RegisterInvariants registers the capability module's invariants.
