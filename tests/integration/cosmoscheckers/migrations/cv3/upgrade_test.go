@@ -1,8 +1,6 @@
 package cv3_test
 
 import (
-	"fmt"
-
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/perfogic/cosmos-checkers/app/upgrades/v1tov1_1"
 	cv2types "github.com/perfogic/cosmos-checkers/x/cosmoscheckers/migrations/cv2/types"
@@ -20,7 +18,6 @@ const (
 
 func (suite *IntegrationTestSuite) TestUpgradeConsensusVersion() {
 	vmBefore := suite.app.UpgradeKeeper.GetModuleVersionMap(suite.ctx)
-	fmt.Println(vmBefore)
 	suite.Require().Equal(cv2types.ConsensusVersion, vmBefore[types.ModuleName])
 
 	v1Tov1_1Plan := upgradetypes.Plan{
@@ -31,7 +28,6 @@ func (suite *IntegrationTestSuite) TestUpgradeConsensusVersion() {
 
 	suite.app.UpgradeKeeper.ApplyUpgrade(suite.ctx, v1Tov1_1Plan)
 
-	fmt.Println("Touch here")
 	vmAfter := suite.app.UpgradeKeeper.GetModuleVersionMap(suite.ctx)
 	suite.Require().Equal(cv3types.ConsensusVersion, vmAfter[types.ModuleName])
 }
