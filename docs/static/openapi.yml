@@ -28931,6 +28931,185 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
+  /perfogic/cosmos-checkers/cosmoscheckers/player_info:
+    get:
+      summary: Queries a list of PlayerInfo items.
+      operationId: PerfogicCosmoscheckersCosmoscheckersPlayerInfoAll
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              playerInfo:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    index:
+                      type: string
+                    wonCount:
+                      type: string
+                      format: uint64
+                    lostCount:
+                      type: string
+                      format: uint64
+                    forfeitedCount:
+                      type: string
+                      format: uint64
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  '/perfogic/cosmos-checkers/cosmoscheckers/player_info/{index}':
+    get:
+      summary: Queries a PlayerInfo by index.
+      operationId: PerfogicCosmoscheckersCosmoscheckersPlayerInfo
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              playerInfo:
+                type: object
+                properties:
+                  index:
+                    type: string
+                  wonCount:
+                    type: string
+                    format: uint64
+                  lostCount:
+                    type: string
+                    format: uint64
+                  forfeitedCount:
+                    type: string
+                    format: uint64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: index
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
   /perfogic/cosmos-checkers/cosmoscheckers/stored_game:
     get:
       summary: Queries a list of StoredGame items.
@@ -29064,6 +29243,16 @@ paths:
           in: query
           required: false
           type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
       tags:
         - Query
   '/perfogic/cosmos-checkers/cosmoscheckers/stored_game/{index}':
@@ -29170,31 +29359,21 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  /tendermint/spn/claim/airdrop_supply:
+  /perfogic/cosmos-checkers/leaderboard/leaderboard:
     get:
-      summary: Queries a AirdropSupply by index.
-      operationId: TendermintSpnClaimAirdropSupply
+      summary: Queries a Leaderboard by index.
+      operationId: PerfogicCosmoscheckersLeaderboardLeaderboard
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
             properties:
-              AirdropSupply:
+              Leaderboard:
                 type: object
                 properties:
-                  denom:
+                  winners:
                     type: string
-                  amount:
-                    type: string
-                description: >-
-                  Coin defines a token with a denomination and an amount.
-
-
-                  NOTE: The amount field is an Int which implements the custom
-                  method
-
-                  signatures required by gogoproto.
         default:
           description: An unexpected error response.
           schema:
@@ -29215,357 +29394,10 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  /tendermint/spn/claim/claim_record:
+  /perfogic/cosmos-checkers/leaderboard/params:
     get:
-      summary: Queries a list of ClaimRecord items.
-      operationId: TendermintSpnClaimClaimRecordAll
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              claimRecord:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    address:
-                      type: string
-                    claimable:
-                      type: string
-                    completedMissions:
-                      type: array
-                      items:
-                        type: string
-                        format: uint64
-              pagination:
-                type: object
-                properties:
-                  next_key:
-                    type: string
-                    format: byte
-                    title: |-
-                      next_key is the key to be passed to PageRequest.key to
-                      query the next page most efficiently
-                  total:
-                    type: string
-                    format: uint64
-                    title: >-
-                      total is total number of results available if
-                      PageRequest.count_total
-
-                      was set, its value is undefined otherwise
-                description: >-
-                  PageResponse is to be embedded in gRPC response messages where
-                  the
-
-                  corresponding request message has used PageRequest.
-
-                   message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      parameters:
-        - name: pagination.key
-          description: |-
-            key is a value returned in PageResponse.next_key to begin
-            querying the next page most efficiently. Only one of offset or key
-            should be set.
-          in: query
-          required: false
-          type: string
-          format: byte
-        - name: pagination.offset
-          description: >-
-            offset is a numeric offset that can be used when key is unavailable.
-
-            It is less efficient than using key. Only one of offset or key
-            should
-
-            be set.
-          in: query
-          required: false
-          type: string
-          format: uint64
-        - name: pagination.limit
-          description: >-
-            limit is the total number of results to be returned in the result
-            page.
-
-            If left empty it will default to a value to be set by each app.
-          in: query
-          required: false
-          type: string
-          format: uint64
-        - name: pagination.count_total
-          description: >-
-            count_total is set to true  to indicate that the result set should
-            include
-
-            a count of the total number of items available for pagination in
-            UIs.
-
-            count_total is only respected when offset is used. It is ignored
-            when key
-
-            is set.
-          in: query
-          required: false
-          type: boolean
-        - name: pagination.reverse
-          description: >-
-            reverse is set to true if results are to be returned in the
-            descending order.
-
-
-            Since: cosmos-sdk 0.43
-          in: query
-          required: false
-          type: boolean
-      tags:
-        - Query
-  '/tendermint/spn/claim/claim_record/{address}':
-    get:
-      summary: Queries a ClaimRecord by address.
-      operationId: TendermintSpnClaimClaimRecord
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              claimRecord:
-                type: object
-                properties:
-                  address:
-                    type: string
-                  claimable:
-                    type: string
-                  completedMissions:
-                    type: array
-                    items:
-                      type: string
-                      format: uint64
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      parameters:
-        - name: address
-          in: path
-          required: true
-          type: string
-      tags:
-        - Query
-  /tendermint/spn/claim/mission:
-    get:
-      summary: Queries a list of Mission items.
-      operationId: TendermintSpnClaimMissionAll
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              Mission:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    missionID:
-                      type: string
-                      format: uint64
-                    description:
-                      type: string
-                    weight:
-                      type: string
-              pagination:
-                type: object
-                properties:
-                  next_key:
-                    type: string
-                    format: byte
-                    title: |-
-                      next_key is the key to be passed to PageRequest.key to
-                      query the next page most efficiently
-                  total:
-                    type: string
-                    format: uint64
-                    title: >-
-                      total is total number of results available if
-                      PageRequest.count_total
-
-                      was set, its value is undefined otherwise
-                description: >-
-                  PageResponse is to be embedded in gRPC response messages where
-                  the
-
-                  corresponding request message has used PageRequest.
-
-                   message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      parameters:
-        - name: pagination.key
-          description: |-
-            key is a value returned in PageResponse.next_key to begin
-            querying the next page most efficiently. Only one of offset or key
-            should be set.
-          in: query
-          required: false
-          type: string
-          format: byte
-        - name: pagination.offset
-          description: >-
-            offset is a numeric offset that can be used when key is unavailable.
-
-            It is less efficient than using key. Only one of offset or key
-            should
-
-            be set.
-          in: query
-          required: false
-          type: string
-          format: uint64
-        - name: pagination.limit
-          description: >-
-            limit is the total number of results to be returned in the result
-            page.
-
-            If left empty it will default to a value to be set by each app.
-          in: query
-          required: false
-          type: string
-          format: uint64
-        - name: pagination.count_total
-          description: >-
-            count_total is set to true  to indicate that the result set should
-            include
-
-            a count of the total number of items available for pagination in
-            UIs.
-
-            count_total is only respected when offset is used. It is ignored
-            when key
-
-            is set.
-          in: query
-          required: false
-          type: boolean
-        - name: pagination.reverse
-          description: >-
-            reverse is set to true if results are to be returned in the
-            descending order.
-
-
-            Since: cosmos-sdk 0.43
-          in: query
-          required: false
-          type: boolean
-      tags:
-        - Query
-  '/tendermint/spn/claim/mission/{missionID}':
-    get:
-      summary: Queries a Mission by ID.
-      operationId: TendermintSpnClaimMission
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              Mission:
-                type: object
-                properties:
-                  missionID:
-                    type: string
-                    format: uint64
-                  description:
-                    type: string
-                  weight:
-                    type: string
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      parameters:
-        - name: missionID
-          in: path
-          required: true
-          type: string
-          format: uint64
-      tags:
-        - Query
-  /tendermint/spn/claim/params:
-    get:
-      summary: Parameters queries the parameters of the module
-      operationId: TendermintSpnClaimParams
+      summary: Parameters queries the parameters of the module.
+      operationId: PerfogicCosmoscheckersLeaderboardParams
       responses:
         '200':
           description: A successful response.
@@ -29575,202 +29407,10 @@ paths:
               params:
                 description: params holds all the parameters of this module.
                 type: object
-            description: >-
-              QueryParamsResponse is response type for the Query/Params RPC
-              method.
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      tags:
-        - Query
-  /tendermint/spn/monitoringp/connection_channel_id:
-    get:
-      summary: Queries a ConnectionChannelID by index.
-      operationId: TendermintSpnMonitoringpConnectionChannelID
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              ConnectionChannelID:
-                type: object
                 properties:
-                  channelID:
-                    type: string
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      tags:
-        - Query
-  /tendermint/spn/monitoringp/consumer_client_id:
-    get:
-      summary: Queries a ConsumerClientID by index.
-      operationId: TendermintSpnMonitoringpConsumerClientID
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              ConsumerClientID:
-                type: object
-                properties:
-                  clientID:
-                    type: string
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      tags:
-        - Query
-  /tendermint/spn/monitoringp/monitoring_info:
-    get:
-      summary: Queries a MonitoringInfo by index.
-      operationId: TendermintSpnMonitoringpMonitoringInfo
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              MonitoringInfo:
-                type: object
-                properties:
-                  transmitted:
-                    type: boolean
-                  signatureCounts:
-                    type: object
-                    properties:
-                      blockCount:
-                        type: string
-                        format: uint64
-                      counts:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            opAddress:
-                              type: string
-                            RelativeSignatures:
-                              type: string
-                          title: >-
-                            SignatureCount contains information of signature
-                            reporting for one specific validator with consensus
-                            address
-
-                            RelativeSignatures is the sum of all signatures
-                            relative to the validator set size
-                    title: >-
-                      SignatureCounts contains information about signature
-                      reporting for a number of blocks
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      tags:
-        - Query
-  /tendermint/spn/monitoringp/params:
-    get:
-      summary: Params queries the parameters of the module.
-      operationId: TendermintSpnMonitoringpParams
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              params:
-                type: object
-                properties:
-                  lastBlockHeight:
-                    type: string
-                    format: int64
-                  consumerChainID:
-                    type: string
-                  consumerConsensusState:
-                    type: object
-                    properties:
-                      nextValidatorsHash:
-                        type: string
-                      timestamp:
-                        type: string
-                      root:
-                        type: object
-                        properties:
-                          hash:
-                            type: string
-                        title: MerkleRoot represents a Merkle Root in ConsensusState
-                    title: >-
-                      ConsensusState represents a Consensus State
-
-                      it is compatible with the dumped state from `appd q ibc
-                      client self-consensus-state` command
-                  consumerUnbondingPeriod:
-                    type: string
-                    format: int64
-                  consumerRevisionHeight:
+                  length:
                     type: string
                     format: uint64
-                description: Params defines the parameters for the module.
             description: >-
               QueryParamsResponse is response type for the Query/Params RPC
               method.
@@ -49425,6 +49065,64 @@ definitions:
   perfogic.cosmoscheckers.cosmoscheckers.Params:
     type: object
     description: Params defines the parameters for the module.
+  perfogic.cosmoscheckers.cosmoscheckers.PlayerInfo:
+    type: object
+    properties:
+      index:
+        type: string
+      wonCount:
+        type: string
+        format: uint64
+      lostCount:
+        type: string
+        format: uint64
+      forfeitedCount:
+        type: string
+        format: uint64
+  perfogic.cosmoscheckers.cosmoscheckers.QueryAllPlayerInfoResponse:
+    type: object
+    properties:
+      playerInfo:
+        type: array
+        items:
+          type: object
+          properties:
+            index:
+              type: string
+            wonCount:
+              type: string
+              format: uint64
+            lostCount:
+              type: string
+              format: uint64
+            forfeitedCount:
+              type: string
+              format: uint64
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
   perfogic.cosmoscheckers.cosmoscheckers.QueryAllStoredGameResponse:
     type: object
     properties:
@@ -49491,6 +49189,23 @@ definitions:
         type: boolean
       reason:
         type: string
+  perfogic.cosmoscheckers.cosmoscheckers.QueryGetPlayerInfoResponse:
+    type: object
+    properties:
+      playerInfo:
+        type: object
+        properties:
+          index:
+            type: string
+          wonCount:
+            type: string
+            format: uint64
+          lostCount:
+            type: string
+            format: uint64
+          forfeitedCount:
+            type: string
+            format: uint64
   perfogic.cosmoscheckers.cosmoscheckers.QueryGetStoredGameResponse:
     type: object
     properties:
@@ -49582,378 +49297,34 @@ definitions:
         type: string
       fifoTailIndex:
         type: string
-  tendermint.spn.claim.ClaimRecord:
+  perfogic.cosmoscheckers.leaderboard.Leaderboard:
     type: object
     properties:
-      address:
+      winners:
         type: string
-      claimable:
-        type: string
-      completedMissions:
-        type: array
-        items:
-          type: string
-          format: uint64
-  tendermint.spn.claim.Mission:
+  perfogic.cosmoscheckers.leaderboard.Params:
     type: object
     properties:
-      missionID:
+      length:
         type: string
         format: uint64
-      description:
-        type: string
-      weight:
-        type: string
-  tendermint.spn.claim.Params:
-    type: object
     description: Params defines the parameters for the module.
-  tendermint.spn.claim.QueryAllClaimRecordResponse:
+  perfogic.cosmoscheckers.leaderboard.QueryGetLeaderboardResponse:
     type: object
     properties:
-      claimRecord:
-        type: array
-        items:
-          type: object
-          properties:
-            address:
-              type: string
-            claimable:
-              type: string
-            completedMissions:
-              type: array
-              items:
-                type: string
-                format: uint64
-      pagination:
+      Leaderboard:
         type: object
         properties:
-          next_key:
+          winners:
             type: string
-            format: byte
-            title: |-
-              next_key is the key to be passed to PageRequest.key to
-              query the next page most efficiently
-          total:
-            type: string
-            format: uint64
-            title: >-
-              total is total number of results available if
-              PageRequest.count_total
-
-              was set, its value is undefined otherwise
-        description: |-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding request message has used PageRequest.
-
-           message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
-  tendermint.spn.claim.QueryAllMissionResponse:
-    type: object
-    properties:
-      Mission:
-        type: array
-        items:
-          type: object
-          properties:
-            missionID:
-              type: string
-              format: uint64
-            description:
-              type: string
-            weight:
-              type: string
-      pagination:
-        type: object
-        properties:
-          next_key:
-            type: string
-            format: byte
-            title: |-
-              next_key is the key to be passed to PageRequest.key to
-              query the next page most efficiently
-          total:
-            type: string
-            format: uint64
-            title: >-
-              total is total number of results available if
-              PageRequest.count_total
-
-              was set, its value is undefined otherwise
-        description: |-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding request message has used PageRequest.
-
-           message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
-  tendermint.spn.claim.QueryGetAirdropSupplyResponse:
-    type: object
-    properties:
-      AirdropSupply:
-        type: object
-        properties:
-          denom:
-            type: string
-          amount:
-            type: string
-        description: |-
-          Coin defines a token with a denomination and an amount.
-
-          NOTE: The amount field is an Int which implements the custom method
-          signatures required by gogoproto.
-  tendermint.spn.claim.QueryGetClaimRecordResponse:
-    type: object
-    properties:
-      claimRecord:
-        type: object
-        properties:
-          address:
-            type: string
-          claimable:
-            type: string
-          completedMissions:
-            type: array
-            items:
-              type: string
-              format: uint64
-  tendermint.spn.claim.QueryGetMissionResponse:
-    type: object
-    properties:
-      Mission:
-        type: object
-        properties:
-          missionID:
-            type: string
-            format: uint64
-          description:
-            type: string
-          weight:
-            type: string
-  tendermint.spn.claim.QueryParamsResponse:
+  perfogic.cosmoscheckers.leaderboard.QueryParamsResponse:
     type: object
     properties:
       params:
         description: params holds all the parameters of this module.
         type: object
-    description: QueryParamsResponse is response type for the Query/Params RPC method.
-  tendermint.spn.monitoringp.ConnectionChannelID:
-    type: object
-    properties:
-      channelID:
-        type: string
-  tendermint.spn.monitoringp.ConsumerClientID:
-    type: object
-    properties:
-      clientID:
-        type: string
-  tendermint.spn.monitoringp.MonitoringInfo:
-    type: object
-    properties:
-      transmitted:
-        type: boolean
-      signatureCounts:
-        type: object
         properties:
-          blockCount:
+          length:
             type: string
             format: uint64
-          counts:
-            type: array
-            items:
-              type: object
-              properties:
-                opAddress:
-                  type: string
-                RelativeSignatures:
-                  type: string
-              title: >-
-                SignatureCount contains information of signature reporting for
-                one specific validator with consensus address
-
-                RelativeSignatures is the sum of all signatures relative to the
-                validator set size
-        title: >-
-          SignatureCounts contains information about signature reporting for a
-          number of blocks
-  tendermint.spn.monitoringp.Params:
-    type: object
-    properties:
-      lastBlockHeight:
-        type: string
-        format: int64
-      consumerChainID:
-        type: string
-      consumerConsensusState:
-        type: object
-        properties:
-          nextValidatorsHash:
-            type: string
-          timestamp:
-            type: string
-          root:
-            type: object
-            properties:
-              hash:
-                type: string
-            title: MerkleRoot represents a Merkle Root in ConsensusState
-        title: >-
-          ConsensusState represents a Consensus State
-
-          it is compatible with the dumped state from `appd q ibc client
-          self-consensus-state` command
-      consumerUnbondingPeriod:
-        type: string
-        format: int64
-      consumerRevisionHeight:
-        type: string
-        format: uint64
-    description: Params defines the parameters for the module.
-  tendermint.spn.monitoringp.QueryGetConnectionChannelIDResponse:
-    type: object
-    properties:
-      ConnectionChannelID:
-        type: object
-        properties:
-          channelID:
-            type: string
-  tendermint.spn.monitoringp.QueryGetConsumerClientIDResponse:
-    type: object
-    properties:
-      ConsumerClientID:
-        type: object
-        properties:
-          clientID:
-            type: string
-  tendermint.spn.monitoringp.QueryGetMonitoringInfoResponse:
-    type: object
-    properties:
-      MonitoringInfo:
-        type: object
-        properties:
-          transmitted:
-            type: boolean
-          signatureCounts:
-            type: object
-            properties:
-              blockCount:
-                type: string
-                format: uint64
-              counts:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    opAddress:
-                      type: string
-                    RelativeSignatures:
-                      type: string
-                  title: >-
-                    SignatureCount contains information of signature reporting
-                    for one specific validator with consensus address
-
-                    RelativeSignatures is the sum of all signatures relative to
-                    the validator set size
-            title: >-
-              SignatureCounts contains information about signature reporting for
-              a number of blocks
-  tendermint.spn.monitoringp.QueryParamsResponse:
-    type: object
-    properties:
-      params:
-        type: object
-        properties:
-          lastBlockHeight:
-            type: string
-            format: int64
-          consumerChainID:
-            type: string
-          consumerConsensusState:
-            type: object
-            properties:
-              nextValidatorsHash:
-                type: string
-              timestamp:
-                type: string
-              root:
-                type: object
-                properties:
-                  hash:
-                    type: string
-                title: MerkleRoot represents a Merkle Root in ConsensusState
-            title: >-
-              ConsensusState represents a Consensus State
-
-              it is compatible with the dumped state from `appd q ibc client
-              self-consensus-state` command
-          consumerUnbondingPeriod:
-            type: string
-            format: int64
-          consumerRevisionHeight:
-            type: string
-            format: uint64
-        description: Params defines the parameters for the module.
     description: QueryParamsResponse is response type for the Query/Params RPC method.
-  tendermint.spn.types.ConsensusState:
-    type: object
-    properties:
-      nextValidatorsHash:
-        type: string
-      timestamp:
-        type: string
-      root:
-        type: object
-        properties:
-          hash:
-            type: string
-        title: MerkleRoot represents a Merkle Root in ConsensusState
-    title: >-
-      ConsensusState represents a Consensus State
-
-      it is compatible with the dumped state from `appd q ibc client
-      self-consensus-state` command
-  tendermint.spn.types.MerkleRoot:
-    type: object
-    properties:
-      hash:
-        type: string
-    title: MerkleRoot represents a Merkle Root in ConsensusState
-  tendermint.spn.types.SignatureCount:
-    type: object
-    properties:
-      opAddress:
-        type: string
-      RelativeSignatures:
-        type: string
-    title: >-
-      SignatureCount contains information of signature reporting for one
-      specific validator with consensus address
-
-      RelativeSignatures is the sum of all signatures relative to the validator
-      set size
-  tendermint.spn.types.SignatureCounts:
-    type: object
-    properties:
-      blockCount:
-        type: string
-        format: uint64
-      counts:
-        type: array
-        items:
-          type: object
-          properties:
-            opAddress:
-              type: string
-            RelativeSignatures:
-              type: string
-          title: >-
-            SignatureCount contains information of signature reporting for one
-            specific validator with consensus address
-
-            RelativeSignatures is the sum of all signatures relative to the
-            validator set size
-    title: >-
-      SignatureCounts contains information about signature reporting for a
-      number of blocks

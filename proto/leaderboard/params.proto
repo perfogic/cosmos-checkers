@@ -1,0 +1,13 @@
+syntax = "proto3";
+package perfogic.cosmoscheckers.leaderboard;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/perfogic/cosmos-checkers/x/leaderboard/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+  
+  uint64 length = 1 [(gogoproto.moretags) = "yaml:\"length\""];
+}

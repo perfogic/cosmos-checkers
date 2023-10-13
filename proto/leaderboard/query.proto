@@ -1,0 +1,40 @@
+syntax = "proto3";
+package perfogic.cosmoscheckers.leaderboard;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "leaderboard/params.proto";
+import "leaderboard/leaderboard.proto";
+// this line is used by starport scaffolding # 1
+
+option go_package = "github.com/perfogic/cosmos-checkers/x/leaderboard/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Parameters queries the parameters of the module.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/perfogic/cosmos-checkers/leaderboard/params";
+  }
+  // Queries a Leaderboard by index.
+	rpc Leaderboard(QueryGetLeaderboardRequest) returns (QueryGetLeaderboardResponse) {
+		option (google.api.http).get = "/perfogic/cosmos-checkers/leaderboard/leaderboard";
+	}
+// this line is used by starport scaffolding # 2
+}
+
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params holds all the parameters of this module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryGetLeaderboardRequest {}
+
+message QueryGetLeaderboardResponse {
+	Leaderboard Leaderboard = 1 [(gogoproto.nullable) = false];
+}
+// this line is used by starport scaffolding # 3

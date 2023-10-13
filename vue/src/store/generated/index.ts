@@ -1,10 +1,12 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
 
 import PerfogicCosmosCheckersPerfogicCosmoscheckersCosmoscheckers from './perfogic/cosmos-checkers/perfogic.cosmoscheckers.cosmoscheckers'
+import PerfogicCosmosCheckersPerfogicCosmoscheckersLeaderboard from './perfogic/cosmos-checkers/perfogic.cosmoscheckers.leaderboard'
 
 
 export default { 
   PerfogicCosmosCheckersPerfogicCosmoscheckersCosmoscheckers: load(PerfogicCosmosCheckersPerfogicCosmoscheckersCosmoscheckers, 'perfogic.cosmoscheckers.cosmoscheckers'),
+  PerfogicCosmosCheckersPerfogicCosmoscheckersLeaderboard: load(PerfogicCosmosCheckersPerfogicCosmoscheckersLeaderboard, 'perfogic.cosmoscheckers.leaderboard'),
   
 }
 
