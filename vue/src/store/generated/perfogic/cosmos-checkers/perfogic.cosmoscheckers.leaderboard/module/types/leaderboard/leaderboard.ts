@@ -14,6 +14,11 @@ export interface Winner {
   addedAt: number;
 }
 
+export interface Candidate {
+  address: Uint8Array;
+  wonCount: number;
+}
+
 const baseLeaderboard: object = {};
 
 export const Leaderboard = {
@@ -167,6 +172,79 @@ export const Winner = {
   },
 };
 
+const baseCandidate: object = { wonCount: 0 };
+
+export const Candidate = {
+  encode(message: Candidate, writer: Writer = Writer.create()): Writer {
+    if (message.address.length !== 0) {
+      writer.uint32(10).bytes(message.address);
+    }
+    if (message.wonCount !== 0) {
+      writer.uint32(16).uint64(message.wonCount);
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): Candidate {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseCandidate } as Candidate;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.address = reader.bytes();
+          break;
+        case 2:
+          message.wonCount = longToNumber(reader.uint64() as Long);
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Candidate {
+    const message = { ...baseCandidate } as Candidate;
+    if (object.address !== undefined && object.address !== null) {
+      message.address = bytesFromBase64(object.address);
+    }
+    if (object.wonCount !== undefined && object.wonCount !== null) {
+      message.wonCount = Number(object.wonCount);
+    } else {
+      message.wonCount = 0;
+    }
+    return message;
+  },
+
+  toJSON(message: Candidate): unknown {
+    const obj: any = {};
+    message.address !== undefined &&
+      (obj.address = base64FromBytes(
+        message.address !== undefined ? message.address : new Uint8Array()
+      ));
+    message.wonCount !== undefined && (obj.wonCount = message.wonCount);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<Candidate>): Candidate {
+    const message = { ...baseCandidate } as Candidate;
+    if (object.address !== undefined && object.address !== null) {
+      message.address = object.address;
+    } else {
+      message.address = new Uint8Array();
+    }
+    if (object.wonCount !== undefined && object.wonCount !== null) {
+      message.wonCount = object.wonCount;
+    } else {
+      message.wonCount = 0;
+    }
+    return message;
+  },
+};
+
 declare var self: any | undefined;
 declare var window: any | undefined;
 var globalThis: any = (() => {
@@ -176,6 +254,29 @@ var globalThis: any = (() => {
   if (typeof global !== "undefined") return global;
   throw "Unable to locate global object";
 })();
+
+const atob: (b64: string) => string =
+  globalThis.atob ||
+  ((b64) => globalThis.Buffer.from(b64, "base64").toString("binary"));
+function bytesFromBase64(b64: string): Uint8Array {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; ++i) {
+    arr[i] = bin.charCodeAt(i);
+  }
+  return arr;
+}
+
+const btoa: (bin: string) => string =
+  globalThis.btoa ||
+  ((bin) => globalThis.Buffer.from(bin, "binary").toString("base64"));
+function base64FromBytes(arr: Uint8Array): string {
+  const bin: string[] = [];
+  for (let i = 0; i < arr.byteLength; ++i) {
+    bin.push(String.fromCharCode(arr[i]));
+  }
+  return btoa(bin.join(""));
+}
 
 type Builtin = Date | Function | Uint8Array | string | number | undefined;
 export type DeepPartial<T> = T extends Builtin

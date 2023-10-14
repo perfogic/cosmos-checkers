@@ -26,6 +26,7 @@ func LeaderboardKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
 	stateStore := store.NewCommitMultiStore(db)
 	stateStore.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
 	stateStore.MountStoreWithDB(memStoreKey, sdk.StoreTypeMemory, nil)
+	stateStore.MountStoreWithDB(tStoreKey, sdk.StoreTypeTransient, nil)
 	require.NoError(t, stateStore.LoadLatestVersion())
 
 	registry := codectypes.NewInterfaceRegistry()

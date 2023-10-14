@@ -10,6 +10,7 @@ import (
 	types "github.com/cosmos/cosmos-sdk/types"
 	types0 "github.com/cosmos/cosmos-sdk/x/auth/types"
 	gomock "github.com/golang/mock/gomock"
+	types1 "github.com/perfogic/cosmos-checkers/x/cosmoscheckers/types"
 )
 
 // MockAccountKeeper is a mock of AccountKeeper interface.
@@ -135,4 +136,39 @@ func (m *MockBankEscrowKeeper) SendCoinsFromModuleToAccount(ctx types.Context, s
 func (mr *MockBankEscrowKeeperMockRecorder) SendCoinsFromModuleToAccount(ctx, senderModule, recipientAddr, amt interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendCoinsFromModuleToAccount", reflect.TypeOf((*MockBankEscrowKeeper)(nil).SendCoinsFromModuleToAccount), ctx, senderModule, recipientAddr, amt)
+}
+
+// MockCosmoscheckersHooks is a mock of CosmoscheckersHooks interface.
+type MockCosmoscheckersHooks struct {
+	ctrl     *gomock.Controller
+	recorder *MockCosmoscheckersHooksMockRecorder
+}
+
+// MockCosmoscheckersHooksMockRecorder is the mock recorder for MockCosmoscheckersHooks.
+type MockCosmoscheckersHooksMockRecorder struct {
+	mock *MockCosmoscheckersHooks
+}
+
+// NewMockCosmoscheckersHooks creates a new mock instance.
+func NewMockCosmoscheckersHooks(ctrl *gomock.Controller) *MockCosmoscheckersHooks {
+	mock := &MockCosmoscheckersHooks{ctrl: ctrl}
+	mock.recorder = &MockCosmoscheckersHooksMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCosmoscheckersHooks) EXPECT() *MockCosmoscheckersHooksMockRecorder {
+	return m.recorder
+}
+
+// AfterPlayerInfoChanged mocks base method.
+func (m *MockCosmoscheckersHooks) AfterPlayerInfoChanged(ctx types.Context, playerInfo types1.PlayerInfo) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "AfterPlayerInfoChanged", ctx, playerInfo)
+}
+
+// AfterPlayerInfoChanged indicates an expected call of AfterPlayerInfoChanged.
+func (mr *MockCosmoscheckersHooksMockRecorder) AfterPlayerInfoChanged(ctx, playerInfo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterPlayerInfoChanged", reflect.TypeOf((*MockCosmoscheckersHooks)(nil).AfterPlayerInfoChanged), ctx, playerInfo)
 }

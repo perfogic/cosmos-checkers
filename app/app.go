@@ -440,8 +440,8 @@ func NewApp(
 	app.LeaderboardKeeper = *leaderboardmodulekeeper.NewKeeper(
 		appCodec,
 		keys[leaderboardmoduletypes.StoreKey],
-		keys[leaderboardmoduletypes.MemStoreKey],
-		keys[leaderboardmoduletypes.TStoreKey],
+		memKeys[leaderboardmoduletypes.MemStoreKey],
+		tkeys[leaderboardmoduletypes.TStoreKey],
 		app.GetSubspace(leaderboardmoduletypes.ModuleName),
 	)
 	leaderboardModule := leaderboardmodule.NewAppModule(appCodec, app.LeaderboardKeeper, app.AccountKeeper, app.BankKeeper)
