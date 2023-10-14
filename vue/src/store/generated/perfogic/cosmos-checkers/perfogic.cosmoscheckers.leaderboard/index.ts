@@ -1,10 +1,11 @@
 import { txClient, queryClient, MissingWalletError , registry} from './module'
 
 import { Leaderboard } from "./module/types/leaderboard/leaderboard"
+import { Winner } from "./module/types/leaderboard/leaderboard"
 import { Params } from "./module/types/leaderboard/params"
 
 
-export { Leaderboard, Params };
+export { Leaderboard, Winner, Params };
 
 async function initTxClient(vuexGetters) {
 	return await txClient(vuexGetters['common/wallet/signer'], {
@@ -47,6 +48,7 @@ const getDefaultState = () => {
 				
 				_Structure: {
 						Leaderboard: getStructure(Leaderboard.fromPartial({})),
+						Winner: getStructure(Winner.fromPartial({})),
 						Params: getStructure(Params.fromPartial({})),
 						
 		},

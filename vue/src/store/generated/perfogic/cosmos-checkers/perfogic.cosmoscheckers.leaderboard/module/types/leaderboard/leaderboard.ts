@@ -1,18 +1,25 @@
 /* eslint-disable */
-import { Writer, Reader } from "protobufjs/minimal";
+import * as Long from "long";
+import { util, configure, Writer, Reader } from "protobufjs/minimal";
 
 export const protobufPackage = "perfogic.cosmoscheckers.leaderboard";
 
 export interface Leaderboard {
-  winners: string;
+  winners: Winner[];
 }
 
-const baseLeaderboard: object = { winners: "" };
+export interface Winner {
+  address: string;
+  wonCount: number;
+  addedAt: number;
+}
+
+const baseLeaderboard: object = {};
 
 export const Leaderboard = {
   encode(message: Leaderboard, writer: Writer = Writer.create()): Writer {
-    if (message.winners !== "") {
-      writer.uint32(10).string(message.winners);
+    for (const v of message.winners) {
+      Winner.encode(v!, writer.uint32(10).fork()).ldelim();
     }
     return writer;
   },
@@ -21,11 +28,12 @@ export const Leaderboard = {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseLeaderboard } as Leaderboard;
+    message.winners = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.winners = reader.string();
+          message.winners.push(Winner.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -37,30 +45,137 @@ export const Leaderboard = {
 
   fromJSON(object: any): Leaderboard {
     const message = { ...baseLeaderboard } as Leaderboard;
+    message.winners = [];
     if (object.winners !== undefined && object.winners !== null) {
-      message.winners = String(object.winners);
-    } else {
-      message.winners = "";
+      for (const e of object.winners) {
+        message.winners.push(Winner.fromJSON(e));
+      }
     }
     return message;
   },
 
   toJSON(message: Leaderboard): unknown {
     const obj: any = {};
-    message.winners !== undefined && (obj.winners = message.winners);
+    if (message.winners) {
+      obj.winners = message.winners.map((e) =>
+        e ? Winner.toJSON(e) : undefined
+      );
+    } else {
+      obj.winners = [];
+    }
     return obj;
   },
 
   fromPartial(object: DeepPartial<Leaderboard>): Leaderboard {
     const message = { ...baseLeaderboard } as Leaderboard;
+    message.winners = [];
     if (object.winners !== undefined && object.winners !== null) {
-      message.winners = object.winners;
-    } else {
-      message.winners = "";
+      for (const e of object.winners) {
+        message.winners.push(Winner.fromPartial(e));
+      }
     }
     return message;
   },
 };
+
+const baseWinner: object = { address: "", wonCount: 0, addedAt: 0 };
+
+export const Winner = {
+  encode(message: Winner, writer: Writer = Writer.create()): Writer {
+    if (message.address !== "") {
+      writer.uint32(10).string(message.address);
+    }
+    if (message.wonCount !== 0) {
+      writer.uint32(16).uint64(message.wonCount);
+    }
+    if (message.addedAt !== 0) {
+      writer.uint32(24).uint64(message.addedAt);
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): Winner {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseWinner } as Winner;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.address = reader.string();
+          break;
+        case 2:
+          message.wonCount = longToNumber(reader.uint64() as Long);
+          break;
+        case 3:
+          message.addedAt = longToNumber(reader.uint64() as Long);
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Winner {
+    const message = { ...baseWinner } as Winner;
+    if (object.address !== undefined && object.address !== null) {
+      message.address = String(object.address);
+    } else {
+      message.address = "";
+    }
+    if (object.wonCount !== undefined && object.wonCount !== null) {
+      message.wonCount = Number(object.wonCount);
+    } else {
+      message.wonCount = 0;
+    }
+    if (object.addedAt !== undefined && object.addedAt !== null) {
+      message.addedAt = Number(object.addedAt);
+    } else {
+      message.addedAt = 0;
+    }
+    return message;
+  },
+
+  toJSON(message: Winner): unknown {
+    const obj: any = {};
+    message.address !== undefined && (obj.address = message.address);
+    message.wonCount !== undefined && (obj.wonCount = message.wonCount);
+    message.addedAt !== undefined && (obj.addedAt = message.addedAt);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<Winner>): Winner {
+    const message = { ...baseWinner } as Winner;
+    if (object.address !== undefined && object.address !== null) {
+      message.address = object.address;
+    } else {
+      message.address = "";
+    }
+    if (object.wonCount !== undefined && object.wonCount !== null) {
+      message.wonCount = object.wonCount;
+    } else {
+      message.wonCount = 0;
+    }
+    if (object.addedAt !== undefined && object.addedAt !== null) {
+      message.addedAt = object.addedAt;
+    } else {
+      message.addedAt = 0;
+    }
+    return message;
+  },
+};
+
+declare var self: any | undefined;
+declare var window: any | undefined;
+var globalThis: any = (() => {
+  if (typeof globalThis !== "undefined") return globalThis;
+  if (typeof self !== "undefined") return self;
+  if (typeof window !== "undefined") return window;
+  if (typeof global !== "undefined") return global;
+  throw "Unable to locate global object";
+})();
 
 type Builtin = Date | Function | Uint8Array | string | number | undefined;
 export type DeepPartial<T> = T extends Builtin
@@ -72,3 +187,15 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+function longToNumber(long: Long): number {
+  if (long.gt(Number.MAX_SAFE_INTEGER)) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  return long.toNumber();
+}
+
+if (util.Long !== Long) {
+  util.Long = Long as any;
+  configure();
+}

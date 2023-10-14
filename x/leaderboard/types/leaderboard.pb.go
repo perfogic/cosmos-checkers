@@ -127,15 +127,68 @@ func (m *Winner) GetAddedAt() uint64 {
 	return 0
 }
 
+type Candidate struct {
+	Address  []byte `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	WonCount uint64 `protobuf:"varint,2,opt,name=wonCount,proto3" json:"wonCount,omitempty"`
+}
+
+func (m *Candidate) Reset()         { *m = Candidate{} }
+func (m *Candidate) String() string { return proto.CompactTextString(m) }
+func (*Candidate) ProtoMessage()    {}
+func (*Candidate) Descriptor() ([]byte, []int) {
+	return fileDescriptor_82336dd4a2bae2c7, []int{2}
+}
+func (m *Candidate) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Candidate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Candidate.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Candidate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Candidate.Merge(m, src)
+}
+func (m *Candidate) XXX_Size() int {
+	return m.Size()
+}
+func (m *Candidate) XXX_DiscardUnknown() {
+	xxx_messageInfo_Candidate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Candidate proto.InternalMessageInfo
+
+func (m *Candidate) GetAddress() []byte {
+	if m != nil {
+		return m.Address
+	}
+	return nil
+}
+
+func (m *Candidate) GetWonCount() uint64 {
+	if m != nil {
+		return m.WonCount
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*Leaderboard)(nil), "perfogic.cosmoscheckers.leaderboard.Leaderboard")
 	proto.RegisterType((*Winner)(nil), "perfogic.cosmoscheckers.leaderboard.Winner")
+	proto.RegisterType((*Candidate)(nil), "perfogic.cosmoscheckers.leaderboard.Candidate")
 }
 
 func init() { proto.RegisterFile("leaderboard/leaderboard.proto", fileDescriptor_82336dd4a2bae2c7) }
 
 var fileDescriptor_82336dd4a2bae2c7 = []byte{
-	// 251 bytes of a gzipped FileDescriptorProto
+	// 270 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0xcd, 0x49, 0x4d, 0x4c,
 	0x49, 0x2d, 0x4a, 0xca, 0x4f, 0x2c, 0x4a, 0xd1, 0x47, 0x62, 0xeb, 0x15, 0x14, 0xe5, 0x97, 0xe4,
 	0x0b, 0x29, 0x17, 0xa4, 0x16, 0xa5, 0xe5, 0xa7, 0x67, 0x26, 0xeb, 0x25, 0xe7, 0x17, 0xe7, 0xe6,
@@ -146,12 +199,13 @@ var fileDescriptor_82336dd4a2bae2c7 = []byte{
 	0x86, 0x20, 0x98, 0x09, 0x4a, 0x11, 0x5c, 0x6c, 0x10, 0x09, 0x21, 0x09, 0x2e, 0xf6, 0xc4, 0x94,
 	0x94, 0xa2, 0xd4, 0x62, 0x90, 0xb1, 0x8c, 0x1a, 0x9c, 0x41, 0x30, 0xae, 0x90, 0x14, 0x17, 0x47,
 	0x79, 0x7e, 0x9e, 0x73, 0x7e, 0x69, 0x5e, 0x89, 0x04, 0x93, 0x02, 0xa3, 0x06, 0x4b, 0x10, 0x9c,
-	0x0f, 0xd5, 0x95, 0x9a, 0xe2, 0x58, 0x22, 0xc1, 0x0c, 0x96, 0x82, 0x71, 0x9d, 0x02, 0x4f, 0x3c,
-	0x92, 0x63, 0xbc, 0xf0, 0x48, 0x8e, 0xf1, 0xc1, 0x23, 0x39, 0xc6, 0x09, 0x8f, 0xe5, 0x18, 0x2e,
-	0x3c, 0x96, 0x63, 0xb8, 0xf1, 0x58, 0x8e, 0x21, 0xca, 0x3c, 0x3d, 0xb3, 0x24, 0xa3, 0x34, 0x49,
-	0x2f, 0x39, 0x3f, 0x57, 0x1f, 0xe6, 0x72, 0x7d, 0x88, 0xcb, 0x75, 0x61, 0x4e, 0xd7, 0xaf, 0x40,
-	0x0e, 0x43, 0xfd, 0x92, 0xca, 0x82, 0xd4, 0xe2, 0x24, 0x36, 0x70, 0x78, 0x18, 0x03, 0x02, 0x00,
-	0x00, 0xff, 0xff, 0x5e, 0x52, 0xe7, 0xd5, 0x6b, 0x01, 0x00, 0x00,
+	0x0f, 0xd5, 0x95, 0x9a, 0xe2, 0x58, 0x22, 0xc1, 0x0c, 0x96, 0x82, 0x71, 0x95, 0x1c, 0xb9, 0x38,
+	0x9d, 0x13, 0xf3, 0x52, 0x32, 0x53, 0x12, 0x4b, 0x52, 0xd1, 0x0d, 0xe7, 0x21, 0xca, 0x70, 0xa7,
+	0xc0, 0x13, 0x8f, 0xe4, 0x18, 0x2f, 0x3c, 0x92, 0x63, 0x7c, 0xf0, 0x48, 0x8e, 0x71, 0xc2, 0x63,
+	0x39, 0x86, 0x0b, 0x8f, 0xe5, 0x18, 0x6e, 0x3c, 0x96, 0x63, 0x88, 0x32, 0x4f, 0xcf, 0x2c, 0xc9,
+	0x28, 0x4d, 0xd2, 0x4b, 0xce, 0xcf, 0xd5, 0x87, 0x79, 0x5e, 0x1f, 0xe2, 0x79, 0x5d, 0x98, 0xef,
+	0xf5, 0x2b, 0x90, 0xa3, 0x41, 0xbf, 0xa4, 0xb2, 0x20, 0xb5, 0x38, 0x89, 0x0d, 0x1c, 0xa4, 0xc6,
+	0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0xe5, 0x62, 0xc4, 0x6b, 0xae, 0x01, 0x00, 0x00,
 }
 
 func (m *Leaderboard) Marshal() (dAtA []byte, err error) {
@@ -231,6 +285,41 @@ func (m *Winner) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *Candidate) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Candidate) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Candidate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.WonCount != 0 {
+		i = encodeVarintLeaderboard(dAtA, i, uint64(m.WonCount))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintLeaderboard(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintLeaderboard(dAtA []byte, offset int, v uint64) int {
 	offset -= sovLeaderboard(v)
 	base := offset
@@ -272,6 +361,22 @@ func (m *Winner) Size() (n int) {
 	}
 	if m.AddedAt != 0 {
 		n += 1 + sovLeaderboard(uint64(m.AddedAt))
+	}
+	return n
+}
+
+func (m *Candidate) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Address)
+	if l > 0 {
+		n += 1 + l + sovLeaderboard(uint64(l))
+	}
+	if m.WonCount != 0 {
+		n += 1 + sovLeaderboard(uint64(m.WonCount))
 	}
 	return n
 }
@@ -461,6 +566,109 @@ func (m *Winner) Unmarshal(dAtA []byte) error {
 				b := dAtA[iNdEx]
 				iNdEx++
 				m.AddedAt |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipLeaderboard(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthLeaderboard
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Candidate) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowLeaderboard
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Candidate: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Candidate: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLeaderboard
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthLeaderboard
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthLeaderboard
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Address = append(m.Address[:0], dAtA[iNdEx:postIndex]...)
+			if m.Address == nil {
+				m.Address = []byte{}
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field WonCount", wireType)
+			}
+			m.WonCount = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLeaderboard
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.WonCount |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

@@ -10,7 +10,7 @@
  */
 
 export interface LeaderboardLeaderboard {
-  winners?: string;
+  winners?: LeaderboardWinner[];
 }
 
 /**
@@ -31,6 +31,16 @@ export interface LeaderboardQueryGetLeaderboardResponse {
 export interface LeaderboardQueryParamsResponse {
   /** params holds all the parameters of this module. */
   params?: LeaderboardParams;
+}
+
+export interface LeaderboardWinner {
+  address?: string;
+
+  /** @format uint64 */
+  wonCount?: string;
+
+  /** @format uint64 */
+  addedAt?: string;
 }
 
 export interface ProtobufAny {

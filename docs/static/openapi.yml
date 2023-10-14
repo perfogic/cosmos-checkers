@@ -29373,7 +29373,18 @@ paths:
                 type: object
                 properties:
                   winners:
-                    type: string
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        address:
+                          type: string
+                        wonCount:
+                          type: string
+                          format: uint64
+                        addedAt:
+                          type: string
+                          format: uint64
         default:
           description: An unexpected error response.
           schema:
@@ -49301,7 +49312,18 @@ definitions:
     type: object
     properties:
       winners:
-        type: string
+        type: array
+        items:
+          type: object
+          properties:
+            address:
+              type: string
+            wonCount:
+              type: string
+              format: uint64
+            addedAt:
+              type: string
+              format: uint64
   perfogic.cosmoscheckers.leaderboard.Params:
     type: object
     properties:
@@ -49316,7 +49338,18 @@ definitions:
         type: object
         properties:
           winners:
-            type: string
+            type: array
+            items:
+              type: object
+              properties:
+                address:
+                  type: string
+                wonCount:
+                  type: string
+                  format: uint64
+                addedAt:
+                  type: string
+                  format: uint64
   perfogic.cosmoscheckers.leaderboard.QueryParamsResponse:
     type: object
     properties:
@@ -49328,3 +49361,14 @@ definitions:
             type: string
             format: uint64
     description: QueryParamsResponse is response type for the Query/Params RPC method.
+  perfogic.cosmoscheckers.leaderboard.Winner:
+    type: object
+    properties:
+      address:
+        type: string
+      wonCount:
+        type: string
+        format: uint64
+      addedAt:
+        type: string
+        format: uint64

@@ -14,3 +14,9 @@ message Winner {
   uint64 wonCount = 2;
   uint64 addedAt = 3;
 }
+
+
+message Candidate {
+  bytes address = 1;
+  uint64 wonCount = 2;
+}

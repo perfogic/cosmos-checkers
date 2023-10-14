@@ -20,6 +20,7 @@ import (
 func LeaderboardKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
 	storeKey := sdk.NewKVStoreKey(types.StoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
+	tStoreKey := storetypes.NewTransientStoreKey(types.TStoreKey)
 
 	db := tmdb.NewMemDB()
 	stateStore := store.NewCommitMultiStore(db)
@@ -40,6 +41,7 @@ func LeaderboardKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
 		cdc,
 		storeKey,
 		memStoreKey,
+		tStoreKey,
 		paramsSubspace,
 	)
 

@@ -310,8 +310,8 @@ func NewApp(
 		leaderboardmoduletypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
-	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
-	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, leaderboardmoduletypes.TStoreKey)
+	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey, leaderboardmoduletypes.MemStoreKey)
 
 	app := &App{
 		BaseApp:           bApp,
@@ -436,15 +436,23 @@ func NewApp(
 		keys[cosmoscheckersmoduletypes.MemStoreKey],
 		app.GetSubspace(cosmoscheckersmoduletypes.ModuleName),
 	)
-	cosmoscheckersModule := cosmoscheckersmodule.NewAppModule(appCodec, app.CosmoscheckersKeeper, app.AccountKeeper, app.BankKeeper)
 
 	app.LeaderboardKeeper = *leaderboardmodulekeeper.NewKeeper(
 		appCodec,
 		keys[leaderboardmoduletypes.StoreKey],
 		keys[leaderboardmoduletypes.MemStoreKey],
+		keys[leaderboardmoduletypes.TStoreKey],
 		app.GetSubspace(leaderboardmoduletypes.ModuleName),
 	)
 	leaderboardModule := leaderboardmodule.NewAppModule(appCodec, app.LeaderboardKeeper, app.AccountKeeper, app.BankKeeper)
+
+	app.CosmoscheckersKeeper = *app.CosmoscheckersKeeper.SetHooks(
+		cosmoscheckersmoduletypes.NewMultiCosmoscheckersHooks(
+			app.LeaderboardKeeper.Hooks(),
+		),
+	)
+
+	cosmoscheckersModule := cosmoscheckersmodule.NewAppModule(appCodec, app.CosmoscheckersKeeper, app.AccountKeeper, app.BankKeeper)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
