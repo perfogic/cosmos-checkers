@@ -1,7 +1,10 @@
 mock-expected-keepers:
 	mockgen -source=x/cosmoscheckers/types/expected_keepers.go \
 		-package testutil \
-		-destination=x/cosmoscheckers/testutil/expected_keepers_mocks.go 
+		-destination=x/cosmoscheckers/testutil/expected_keepers_mocks.go
+	mockgen -source=x/leaderboard/types/expected_keepers.go \
+			-package testutil \
+			-destination=x/leaderboard/testutil/expected_keepers_mocks.go
 
 install-protoc-gen-ts:
 	mkdir -p scripts/protoc

@@ -106,9 +106,13 @@ import (
 	cosmoscheckersmoduletypes "github.com/perfogic/cosmos-checkers/x/cosmoscheckers/types"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	v1_1tov2 "github.com/perfogic/cosmos-checkers/app/upgrades/v1_1tov2"
 	v1tov1_1 "github.com/perfogic/cosmos-checkers/app/upgrades/v1tov1_1"
+
 	leaderboardmodule "github.com/perfogic/cosmos-checkers/x/leaderboard"
 	leaderboardmodulekeeper "github.com/perfogic/cosmos-checkers/x/leaderboard/keeper"
+	leaderboardmodulemigrationscv2 "github.com/perfogic/cosmos-checkers/x/leaderboard/migrations/cv2"
+	leaderboardmodulemigrationscv2types "github.com/perfogic/cosmos-checkers/x/leaderboard/migrations/cv2/types"
 	leaderboardmoduletypes "github.com/perfogic/cosmos-checkers/x/leaderboard/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
@@ -820,6 +824,28 @@ func (app *App) setupUpgradeHandlers() {
 		},
 	)
 
+	// v1.1 to v2 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v1_1tov2.UpgradeName,
+		func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+			vm[leaderboardmoduletypes.ModuleName] = leaderboardmodulemigrationscv2types.ConsensusVersion
+			genesis, err := leaderboardmodulemigrationscv2.ComputeInitGenesis(ctx, app.CosmoscheckersKeeper)
+			if err != nil {
+				return vm, err
+			}
+			gen, err := app.appCodec.MarshalJSON(genesis)
+			if err != nil {
+				return vm, err
+			}
+			app.mm.Modules[leaderboardmoduletypes.ModuleName].InitGenesis(
+				ctx,
+				app.appCodec,
+				gen)
+			ctx.Logger().Info("Leaderboard genesis saved")
+			return app.mm.RunMigrations(ctx, app.configurator, vm)
+		},
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -836,6 +862,10 @@ func (app *App) setupUpgradeHandlers() {
 
 	switch upgradeInfo.Name {
 	case v1tov1_1.UpgradeName:
+	case v1_1tov2.UpgradeName:
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{leaderboardmoduletypes.StoreKey},
+		}
 	}
 
 	if storeUpgrades != nil {

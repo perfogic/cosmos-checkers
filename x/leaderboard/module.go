@@ -18,6 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/perfogic/cosmos-checkers/x/leaderboard/client/cli"
 	"github.com/perfogic/cosmos-checkers/x/leaderboard/keeper"
+	cv2types "github.com/perfogic/cosmos-checkers/x/leaderboard/migrations/cv2/types"
 	"github.com/perfogic/cosmos-checkers/x/leaderboard/types"
 )
 
@@ -139,6 +140,12 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 // module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
+
+	if err := cfg.RegisterMigration(types.ModuleName, cv2types.ConsensusVersion, func(ctx sdk.Context) error {
+		return nil
+	}); err != nil {
+		panic(fmt.Errorf("failed to register cv2 leaderboard migration of %s: %w", types.ModuleName, err))
+	}
 }
 
 // RegisterInvariants registers the capability module's invariants.
@@ -163,7 +170,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 // ConsensusVersion implements ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return 2 }
+func (AppModule) ConsensusVersion() uint64 { return cv2types.ConsensusVersion }
 
 // BeginBlock executes all ABCI BeginBlock logic respective to the capability module.
 func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
