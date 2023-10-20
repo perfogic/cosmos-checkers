@@ -1,0 +1,48 @@
+# start with docker-compose -f tokentransfer.yml up -d
+
+version: '3'
+
+services:
+
+  checkersa:
+    container_name: checkersa
+    image: "checkersa"
+    ports:
+      - "26657:26657"
+      - "1317:1317"
+      - "4500:4500"
+    networks:
+      - tokendemo
+
+  checkersb:
+    container_name: checkersb
+    image: "checkersb"
+    ports:
+      - "26658:26657"
+      - "1318:1317"
+      - "4501:4500"
+    networks:
+      - tokendemo
+
+  relayer_hermes:
+    profiles: ["hermes"]
+    build: ./relayer_hermes
+    container_name: relayer
+    image: "relayer_hermes"
+    tty: true
+    stdin_open: true
+    networks:
+      - tokendemo
+
+  relayer_go:
+    profiles: ["go"]
+    build: ./relayer_go
+    container_name: relayer
+    image: "relayer_go"
+    tty: true
+    stdin_open: true
+    networks:
+      - tokendemo
+
+networks:
+    tokendemo:
