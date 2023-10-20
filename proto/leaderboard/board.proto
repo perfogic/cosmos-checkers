@@ -1,0 +1,10 @@
+syntax = "proto3";
+package perfogic.cosmoscheckers.leaderboard;
+
+option go_package = "github.com/perfogic/cosmos-checkers/x/leaderboard/types";
+import "leaderboard/player_info.proto"; 
+import "gogoproto/gogo.proto";
+
+message Board {
+  repeated PlayerInfo playerInfo = 1 [(gogoproto.nullable) = false];
+}

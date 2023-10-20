@@ -1,0 +1,14 @@
+syntax = "proto3";
+package perfogic.cosmoscheckers.leaderboard;
+
+option go_package = "github.com/perfogic/cosmos-checkers/x/leaderboard/types";
+
+message PlayerInfo {
+  string index = 1; 
+  uint64 wonCount = 2; 
+  uint64 lostCount = 3; 
+  uint64 forfeitedCount = 4; 
+  string dateUpdated = 5; 
+  
+}
+

@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	leaderboardTypes "github.com/perfogic/cosmos-checkers/x/leaderboard/types"
 )
 
 // AccountKeeper defines the expected account keeper used for simulations (noalias)
@@ -20,4 +21,10 @@ type BankKeeper interface {
 type BankEscrowKeeper interface {
 	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
 	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
+}
+
+type CheckersLeaderboardKeeper interface {
+	MustAddWonGameResultToPlayer(ctx sdk.Context, player sdk.AccAddress) leaderboardTypes.PlayerInfo
+	MustAddLostGameResultToPlayer(ctx sdk.Context, player sdk.AccAddress) leaderboardTypes.PlayerInfo
+	MustAddForfeitedGameResultToPlayer(ctx sdk.Context, player sdk.AccAddress) leaderboardTypes.PlayerInfo
 }

@@ -19,7 +19,7 @@ func setupKeeperForWagerHandler(t testing.TB) (keeper.Keeper, context.Context,
 	*gomock.Controller, *testutil.MockBankEscrowKeeper) {
 	ctrl := gomock.NewController(t)
 	bankMock := testutil.NewMockBankEscrowKeeper(ctrl)
-	k, ctx := keepertest.CosmoscheckersKeeperWithMocks(t, bankMock)
+	k, ctx := keepertest.CosmoscheckersKeeperWithMocks(t, bankMock, nil)
 	cosmoscheckers.InitGenesis(ctx, *k, *types.DefaultGenesis())
 	context := sdk.WrapSDKContext(ctx)
 	return *k, context, ctrl, bankMock

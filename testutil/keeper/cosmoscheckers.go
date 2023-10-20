@@ -19,10 +19,10 @@ import (
 )
 
 func CosmoscheckersKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
-	return CosmoscheckersKeeperWithMocks(t, nil)
+	return CosmoscheckersKeeperWithMocks(t, nil, nil)
 }
 
-func CosmoscheckersKeeperWithMocks(t testing.TB, bank *testutil.MockBankEscrowKeeper) (*keeper.Keeper, sdk.Context) {
+func CosmoscheckersKeeperWithMocks(t testing.TB, bank *testutil.MockBankEscrowKeeper, leaderboard *testutil.MockCheckersLeaderboardKeeper) (*keeper.Keeper, sdk.Context) {
 	storeKey := sdk.NewKVStoreKey(types.StoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
@@ -43,6 +43,7 @@ func CosmoscheckersKeeperWithMocks(t testing.TB, bank *testutil.MockBankEscrowKe
 	)
 	k := keeper.NewKeeper(
 		bank,
+		leaderboard,
 		cdc,
 		storeKey,
 		memStoreKey,

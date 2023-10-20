@@ -107,6 +107,9 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	v1tov1_1 "github.com/perfogic/cosmos-checkers/app/upgrades/v1tov1_1"
+	leaderboardmodule "github.com/perfogic/cosmos-checkers/x/leaderboard"
+	leaderboardmodulekeeper "github.com/perfogic/cosmos-checkers/x/leaderboard/keeper"
+	leaderboardmoduletypes "github.com/perfogic/cosmos-checkers/x/leaderboard/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
@@ -162,6 +165,7 @@ var (
 		vesting.AppModuleBasic{},
 		// monitoringp.AppModuleBasic{},
 		cosmoscheckersmodule.AppModuleBasic{},
+		leaderboardmodule.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -235,7 +239,9 @@ type App struct {
 	ScopedTransferKeeper   capabilitykeeper.ScopedKeeper
 	ScopedMonitoringKeeper capabilitykeeper.ScopedKeeper
 
-	CosmoscheckersKeeper cosmoscheckersmodulekeeper.Keeper
+	CosmoscheckersKeeper    cosmoscheckersmodulekeeper.Keeper
+	ScopedLeaderboardKeeper capabilitykeeper.ScopedKeeper
+	LeaderboardKeeper       leaderboardmodulekeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// mm is the module manager
@@ -301,6 +307,7 @@ func NewApp(
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		// monitoringptypes.StoreKey,
 		cosmoscheckersmoduletypes.StoreKey,
+		leaderboardmoduletypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -422,8 +429,22 @@ func NewApp(
 	// )
 	// monitoringModule := monitoringp.NewAppModule(appCodec, app.MonitoringKeeper)
 
+	scopedLeaderboardKeeper := app.CapabilityKeeper.ScopeToModule(leaderboardmoduletypes.ModuleName)
+	app.ScopedLeaderboardKeeper = scopedLeaderboardKeeper
+	app.LeaderboardKeeper = *leaderboardmodulekeeper.NewKeeper(
+		appCodec,
+		keys[leaderboardmoduletypes.StoreKey],
+		keys[leaderboardmoduletypes.MemStoreKey],
+		app.GetSubspace(leaderboardmoduletypes.ModuleName),
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedLeaderboardKeeper,
+	)
+	leaderboardModule := leaderboardmodule.NewAppModule(appCodec, app.LeaderboardKeeper, app.AccountKeeper, app.BankKeeper)
+
 	app.CosmoscheckersKeeper = *cosmoscheckersmodulekeeper.NewKeeper(
 		app.BankKeeper,
+		app.LeaderboardKeeper,
 		appCodec,
 		keys[cosmoscheckersmoduletypes.StoreKey],
 		keys[cosmoscheckersmoduletypes.MemStoreKey],
@@ -437,6 +458,7 @@ func NewApp(
 	ibcRouter := ibcporttypes.NewRouter()
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
 	// ibcRouter.AddRoute(monitoringptypes.ModuleName, monitoringModule)
+	ibcRouter.AddRoute(leaderboardmoduletypes.ModuleName, leaderboardModule)
 	// this line is used by starport scaffolding # ibc/app/router
 	app.IBCKeeper.SetRouter(ibcRouter)
 
@@ -473,6 +495,7 @@ func NewApp(
 		transferModule,
 		// monitoringModule,
 		cosmoscheckersModule,
+		leaderboardModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -501,6 +524,7 @@ func NewApp(
 		paramstypes.ModuleName,
 		// monitoringptypes.ModuleName,
 		cosmoscheckersmoduletypes.ModuleName,
+		leaderboardmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -525,6 +549,7 @@ func NewApp(
 		ibctransfertypes.ModuleName,
 		// monitoringptypes.ModuleName,
 		cosmoscheckersmoduletypes.ModuleName,
+		leaderboardmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -554,6 +579,7 @@ func NewApp(
 		feegrant.ModuleName,
 		// monitoringptypes.ModuleName,
 		cosmoscheckersmoduletypes.ModuleName,
+		leaderboardmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -580,6 +606,7 @@ func NewApp(
 		transferModule,
 		// monitoringModule,
 		cosmoscheckersModule,
+		leaderboardModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 	app.sm.RegisterStoreDecoders()
@@ -772,6 +799,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	// paramsKeeper.Subspace(monitoringptypes.ModuleName)
 	paramsKeeper.Subspace(cosmoscheckersmoduletypes.ModuleName)
+	paramsKeeper.Subspace(leaderboardmoduletypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper
