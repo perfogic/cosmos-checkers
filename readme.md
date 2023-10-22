@@ -1,52 +1,92 @@
-# cosmoscheckers
-**cosmoscheckers** is a blockchain built using Cosmos SDK and Tendermint and created with [Ignite CLI](https://ignite.com/cli).
+# Test Checkers leaderboard extension
 
-## Get started
+## Build Docker images
 
-```
-ignite chain serve
-```
-
-`serve` command installs dependencies, builds, initializes, and starts your blockchain in development.
-
-### Configure
-
-Your blockchain in development can be configured with `config.yml`. To learn more, see the [Ignite CLI docs](https://docs.ignite.com).
-
-### Web Frontend
-
-Ignite CLI has scaffolded a Vue.js-based web app in the `vue` directory. Run the following commands to install dependencies and start the app:
+to build the **image for the checkers game with the leaderboard**, clone the repository and run:
 
 ```
-cd vue
-npm install
-npm run serve
+$ cd cosmos-ibc-docker/modular
+$ docker build -f Dockerfile-checkers . -t checkers --no-cache
 ```
 
-The frontend app is built using the `@starport/vue` and `@starport/vuex` packages. For details, see the [monorepo for Ignite front-end development](https://github.com/ignite-hq/web).
-
-## Release
-To release a new version of your blockchain, create and push a new tag with `v` prefix. A new draft release with the configured targets will be created.
+and to build the **image for the leaderbaord chain**:
 
 ```
-git tag v0.1
-git push origin v0.1
+$ cd cosmos-ibc-docker/modular
+$ docker build -f Dockerfile-leaderboard . -t leaderboard --no-cache
 ```
 
-After a draft release is created, make your final changes from the release page and publish it.
-
-### Install
-To install the latest version of your blockchain node's binary, execute the following command on your machine:
+In addition, you will need to build the **relayer image**:
 
 ```
-curl https://get.ignite.com/perfogic/cosmos-checkers@latest! | sudo bash
+$ cd cosmos-ibc-docker/modular/relayer
+$ docker build -f Dockerfile . -t relayer --no-cache
 ```
-`perfogic/cosmos-checkers` should match the `username` and `repo_name` of the Github repository to which the source code was pushed. Learn more about [the install process](https://github.com/allinbits/starport-installer).
 
-## Learn more
+## Start the network
 
-- [Ignite CLI](https://ignite.com/cli)
-- [Tutorials](https://docs.ignite.com/guide)
-- [Ignite CLI docs](https://docs.ignite.com)
-- [Cosmos SDK docs](https://docs.cosmos.network)
-- [Developer Chat](https://discord.gg/ignite)
+You can use the provided compose file to spin up a network with a checkers blockchain, a leaderboard chain and a relayer:
+
+```
+$ cd cosmos-ibc-docker/modular
+$ docker-compose -f modular.yaml up
+
+```
+
+Observe the output of `docker-compose` until the chains are ready - it will take some time for the chains to be ready. 
+
+## Start the relayer
+
+If the chains are ready, you can start the relayer process:
+
+```
+$ docker exec relayer ./run-relayer.sh 
+```
+
+wait till the connection is etablished and a channel is created. 
+
+## Create a game and play it till end
+
+The easiest way to do so is to start the test script, jump into container:
+
+```
+$ docker exec -it checkers bash
+```
+
+and run:
+
+```
+$ ./test.sh 1 cosmos14y0kdvznkssdtal2r60a8us266n0mm97r2xju8 cosmos1n4mqetruv26lm2frkjah86h642ts84qyd5uvyz
+```
+
+this will crate and play a game in the checkers chain. The number `1` indicates the game index. You can increase it for the next test if you want it to play another game. It lets the second address win.
+
+After a game is over, you can query the player information:
+
+```
+$ checkersd query leaderboard list-player-info
+```
+
+You can send the score of the player to leaderboard chain. In the checkers chain container:
+
+```
+$ checkersd tx leaderboard send-candidate leaderboard channel-0 --from cosmos14y0kdvznkssdtal2r60a8us266n0mm97r2xju8
+```
+
+After a while, you can jump into the leaderboard chain:
+
+```
+$ docker exec -it leaderboard bash
+```
+
+to query the received player information:
+
+```
+$ leaderboardd q leaderboard list-player-info
+```
+
+to query the leaderboard:
+
+```
+$ leaderboardd q leaderboard show-board
+```
